@@ -397,7 +397,7 @@
       <span class="nav-icon">🏆</span><span class="nav-label">Ranking</span>
     </button>
     <button class="nav-item" onclick="showStudentScreen('profile')" data-screen="profile">
-      <span class="nav-icon">👤</span><span class="nav-label">Perfil</span>
+      <span class="nav-icon">🙋</span><span class="nav-label">Perfil</span>
     </button>
   </nav>
 </div>
@@ -428,7 +428,7 @@
       <span class="nav-icon">🏆</span><span class="nav-label">Ranking</span>
     </button>
     <button class="nav-item" onclick="showStudentScreen('profile')" data-screen="profile">
-      <span class="nav-icon">👤</span><span class="nav-label">Perfil</span>
+      <span class="nav-icon">🙋</span><span class="nav-label">Perfil</span>
     </button>
   </nav>
 </div>
@@ -450,7 +450,7 @@
       <span class="nav-icon">🏆</span><span class="nav-label">Ranking</span>
     </button>
     <button class="nav-item active" onclick="showStudentScreen('profile')" data-screen="profile">
-      <span class="nav-icon">👤</span><span class="nav-label">Perfil</span>
+      <span class="nav-icon">🙋</span><span class="nav-label">Perfil</span>
     </button>
   </nav>
 </div>
@@ -557,7 +557,7 @@
   <div class="app-header">
     <div class="header-top">
       <button class="header-back" onclick="showScreen('screen-admin')">←</button>
-      <div class="header-title">🎭 Gestão Quem Sou Eu</div>
+      <div class="header-title">🔍 Gestão Quem Sou Eu</div>
     </div>
   </div>
   <div class="content" id="adminWhoamiContent"></div>
@@ -846,12 +846,30 @@ const DB_KEY = 'ebd_conecta_v1';
 const AVATARS = ['😊','🤩','😎','🥳','🤗','😇','🌟','🦁','🐯','🦊','🐼','🐸','🦋','🌸','⚡'];
 
 const BADGES_DEF = [
-  { id: 'first_delivery', icon: '🌟', name: 'Primeira Entrega', desc: 'Enviou o 1º desafio' },
-  { id: 'sharp_eye_3', icon: '🎯', name: 'Mira Certeira', desc: 'Acertou 3 Quem Sou Eu seguidos' },
-  { id: 'top1_month', icon: '👑', name: 'Top 1 do Mês', desc: 'Ficou em 1º no ranking mensal' },
-  { id: 'streak_4', icon: '🔥', name: 'Em Chamas', desc: 'Participou 4 semanas seguidas' },
-  { id: 'open_heart', icon: '🤗', name: 'Coração Aberto', desc: 'Comentou em 10 posts de colegas' },
-  { id: 'legendary', icon: '✨', name: 'Protagonista Lendário', desc: '80%+ erraram seu fato falso' }
+  // Originais
+  { id: 'first_delivery', icon: '🌟', name: 'Primeira Entrega',     desc: 'Enviou o 1º desafio da semana' },
+  { id: 'sharp_eye_3',   icon: '🎯', name: 'Mira Certeira',        desc: 'Acertou 3 Quem Sou Eu seguidos' },
+  { id: 'top1_month',    icon: '👑', name: 'Top 1 do Mês',         desc: 'Ficou em 1º no ranking mensal' },
+  { id: 'streak_4',      icon: '🔥', name: 'Em Chamas',            desc: 'Votou/foi votado 4 domingos seguidos' },
+  { id: 'open_heart',    icon: '🤗', name: 'Coração Aberto',       desc: 'Comentou em 10 posts de colegas' },
+  { id: 'legendary',     icon: '✨', name: 'Protagonista Lendária', desc: '80%+ erraram seu fato falso no Quem Sou Eu' },
+  // Presença (automático ao votar/ser votado no Destaque)
+  { id: 'attend_5',  icon: '📅', name: 'Frequente',         desc: 'Participou de 5 domingos no ano (+2 T$)' },
+  { id: 'attend_10', icon: '📆', name: 'Assíduo',           desc: 'Participou de 10 domingos no ano (+4 T$)' },
+  { id: 'attend_15', icon: '🗓️', name: 'Dedicado',          desc: 'Participou de 15 domingos no ano (+10 T$)' },
+  { id: 'attend_20', icon: '🏅', name: 'Comprometido',      desc: 'Participou de 20 domingos no ano (+15 T$)' },
+  { id: 'attend_25', icon: '🥈', name: 'Guardião da EBD',   desc: 'Participou de 25 domingos no ano (+20 T$)' },
+  { id: 'attend_30', icon: '🏆', name: 'Lenda da EBD',      desc: 'Participou de 30 domingos no ano (+30 T$)' },
+  // Votos recebidos no ano
+  { id: 'votes_3',  icon: '⭐', name: 'Notado pela Turma',  desc: 'Recebeu 3 votos no Destaque no ano (+5 T$)' },
+  { id: 'votes_6',  icon: '🌠', name: 'Destaque da Turma',  desc: 'Recebeu 6 votos no Destaque no ano (+10 T$)' },
+  { id: 'votes_10', icon: '💫', name: 'Referência da Turma',desc: 'Recebeu 10 votos no Destaque no ano (+15 T$)' },
+  // Curtidas no mural
+  { id: 'likes_1', icon: '❤️',  name: 'Primeiro Like',      desc: 'Seu mural recebeu a 1ª curtida (+2 T$)' },
+  { id: 'likes_5', icon: '💖',  name: 'Querido da Turma',   desc: 'Seu mural recebeu 5 curtidas (+2 T$)' },
+  // Quem sou eu & Dupla Secreta
+  { id: 'whoami_voted', icon: '🔍', name: 'Detetive',        desc: 'Votou no Quem Sou Eu de um colega' },
+  { id: 'secret_pair',  icon: '🤝', name: 'Parceiro Fiel',   desc: 'Completou a missão da Dupla Secreta' },
 ];
 
 const CHALLENGE_TEMPLATES = [
@@ -1239,14 +1257,26 @@ function renderRankingContent(mode, podiumId, listId) {
       }).join('')}
     </div>`;
 
-  // Full list
-  document.getElementById(listId).innerHTML = sorted.map((s,i) => `
-    <div class="rank-list-item">
-      <span class="rank-num">${i===0?'🥇':i===1?'🥈':i===2?'🥉':`#${i+1}`}</span>
-      ${getAvatarHTML(s, 38)}
-      <span class="rank-name">${s.name}</span>
-      <span class="rank-pts">T$ ${s[field]||0}</span>
-    </div>`).join('');
+  // Full list — top 10 para alunos, completo para admin
+  var isAdmin = currentUser && currentUser.role === 'admin';
+  var listData = isAdmin ? sorted : sorted.slice(0, 10);
+  var myPos = !isAdmin ? sorted.findIndex(function(s){ return s.id === currentUser.id; }) : -1;
+  var showMyPos = !isAdmin && myPos >= 10;
+  var myEntry = showMyPos ? sorted[myPos] : null;
+  document.getElementById(listId).innerHTML =
+    listData.map(function(s,i) { return '<div class="rank-list-item" style="' + (s.id===(currentUser&&currentUser.id)?'background:var(--blue-pale);border-radius:10px;padding-left:8px':'') + '">' +
+      '<span class="rank-num">' + (i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1)) + '</span>' +
+      getAvatarHTML(s, 38) +
+      '<span class="rank-name">' + s.name + '</span>' +
+      '<span class="rank-pts">T$ ' + (s[field]||0) + '</span>' +
+    '</div>'; }).join('') +
+    (showMyPos ? '<div style="text-align:center;padding:8px 0;color:var(--text-muted);font-size:12px">· · ·</div>' +
+      '<div class="rank-list-item" style="background:var(--blue-pale);border-radius:10px;padding-left:8px">' +
+        '<span class="rank-num">#' + (myPos+1) + '</span>' +
+        getAvatarHTML(myEntry, 38) +
+        '<span class="rank-name">' + myEntry.name + ' <span style="font-size:11px;color:var(--blue)">(você)</span></span>' +
+        '<span class="rank-pts">T$ ' + (myEntry[field]||0) + '</span>' +
+      '</div>' : '');
 }
 
 // ============================================================
@@ -1288,7 +1318,7 @@ function renderProfile() {
       <div class="section-title">🏅 Conquistas</div>
       <div class="badges-grid">
         ${badges.map(b => `
-          <div class="badge-item ${b.unlocked?'unlocked':''}">
+          <div class="badge-item ${b.unlocked?'unlocked':''}" title="${b.desc}" style="cursor:help">
             <div class="badge-icon">${b.icon}</div>
             <div class="badge-name">${b.name}</div>
           </div>`).join('')}
@@ -1397,11 +1427,20 @@ function submitVote() {
     db.voting.votes.push({ voterId: currentUser.id, targetId: sid, category: cat, sessionId: db.voting.sessionId });
     // Give talentos to voted
     const target = db.users.find(u => u.id === sid);
-    if (target) awardTalents(db, target, 5, '🗳️', 'Recebeu voto no Destaque');
+    if (target) {
+      awardTalents(db, target, 5, '🗳️', 'Recebeu voto no Destaque');
+      if (!target.yearVotesReceived) target.yearVotesReceived = 0;
+      target.yearVotesReceived++;
+      checkVotesBadges(db, target);
+      registerAttendanceIfNewSunday(db, target);
+    }
   }
   // Give talentos to voter
   const voter = db.users.find(u => u.id === currentUser.id);
-  if (voter) awardTalents(db, voter, 2, '🗳️', 'Participou da votação');
+  if (voter) {
+    awardTalents(db, voter, 2, '🗳️', 'Participou da votação');
+    registerAttendanceIfNewSunday(db, voter);
+  }
   saveDB(db);
   const qtd = Object.keys(selectedVotes).length;
   selectedVotes = {};
@@ -1614,7 +1653,12 @@ function toggleLike(postId) {
     sub.likes.push(currentUser.id);
     if (canEarnMore) {
       const postOwner = db.users.find(u => u.id === sub.userId);
-      if (postOwner && postOwner.id !== currentUser.id) awardTalents(db, postOwner, 1, '❤️', 'Curtida recebida');
+      if (postOwner && postOwner.id !== currentUser.id) {
+        awardTalents(db, postOwner, 1, '❤️', 'Curtida recebida');
+        if (!postOwner.totalLikesReceived) postOwner.totalLikesReceived = 0;
+        postOwner.totalLikesReceived++;
+        checkLikesBadges(db, postOwner);
+      }
     }
     // Liker gets talent (max 5/week)
     const liker = db.users.find(u => u.id === currentUser.id);
@@ -1889,7 +1933,10 @@ function submitWhoAmIVote() {
   const db = initDB();
   db.whoami.votes.push({ userId: currentUser.id, guessIndex: selectedFactIdx });
   const user = db.users.find(u => u.id === currentUser.id);
-  if (user) awardTalents(db, user, 1, '🔍', 'Participou do Quem Sou Eu');
+  if (user) {
+    awardTalents(db, user, 1, '🔍', 'Participou do Quem Sou Eu');
+    unlockBadge(db, user, 'whoami_voted');
+  }
   saveDB(db);
   showToast('+1 Talento! Aguarde a revelação! 🔍', 'success');
   renderWhoAmI();
@@ -2055,7 +2102,7 @@ function renderAdminDashboard() {
       <span>›</span>
     </div>
     <div class="admin-menu-item" onclick="showScreen('screen-admin-whoami')">
-      <div class="admin-menu-icon purple">🎭</div>
+      <div class="admin-menu-icon purple">🔍</div>
       <div class="admin-menu-text"><strong>Quem Sou Eu?</strong><span>${db.whoami.current ? (db.whoami.current.approved ? '🟢 Rodada ativa' : '⏳ Aguardando aprovação') : '🔴 Inativo'}</span></div>
       <span>›</span>
     </div>
@@ -2067,7 +2114,7 @@ function renderAdminDashboard() {
 
   document.getElementById('adminManagement').innerHTML = `
     <div class="admin-menu-item" onclick="showScreen('screen-admin-students')">
-      <div class="admin-menu-icon blue">👥</div>
+      <div class="admin-menu-icon blue">🧑‍🤝‍🧑</div>
       <div class="admin-menu-text"><strong>Gerenciar Alunos</strong><span>${activeStudents} aluno${activeStudents!==1?'s':''} cadastrado${activeStudents!==1?'s':''}</span></div>
       <span>›</span>
     </div>
@@ -2077,7 +2124,7 @@ function renderAdminDashboard() {
       <span>›</span>
     </div>
     <div class="admin-menu-item" onclick="openBonusModal()">
-      <div class="admin-menu-icon teal">🪙</div>
+      <div class="admin-menu-icon teal">🎁</div>
       <div class="admin-menu-text"><strong>Dar Bônus de Talentos</strong><span>Premiar aluno manualmente</span></div>
       <span>›</span>
     </div>
@@ -2629,11 +2676,11 @@ function renderAdminWhoAmI() {
             ${wai.votes.length > 0 ? `<p class="text-muted text-small mt-8">${wai.votes.length} voto${wai.votes.length!==1?'s':''} registrado${wai.votes.length!==1?'s':''}</p>` : ''}`;
         })()}
       </div>`
-      : `<div class="card" style="text-align:center;padding:24px">
-          <p class="text-muted" style="margin-bottom:16px">Nenhuma rodada ativa.</p>
-          ${queue.length > 0
-            ? `<button class="btn btn-primary" onclick="promoteNextWhoAmI()">▶️ Iniciar rodada com ${db.users.find(u=>u.id===wai.queue[0])?.name?.split(' ')[0] || 'próximo'}</button>`
-            : '<p class="text-muted text-small">Aguarde alunos se inscreverem ou adicione manualmente.</p>'}
+      : `${queue.length > 0 ? `<div class="card" style="border:2px solid var(--blue);background:var(--blue-pale);padding:16px;text-align:center">
+          <button class="btn btn-primary" style="width:100%" onclick="promoteNextWhoAmI()">▶️ Iniciar rodada com ${db.users.find(u=>u.id===wai.queue[0])?.name?.split(' ')[0] || 'próximo'}</button>
+        </div>` : ''}
+        <div class="card" style="text-align:center;padding:20px">
+          <p class="text-muted">Nenhuma rodada ativa.${queue.length === 0 ? '<br><span class=\'text-small\'>Aguarde alunos se inscreverem.</span>' : ''}</p>
         </div>`}
     `;
 }
@@ -2853,7 +2900,10 @@ function drawSecretPairs() {
   // Award participation
   students.forEach(s => {
     const u = db.users.find(u => u.id === s.id);
-    if (u) awardTalents(db, u, 3, '🤝', 'Participou do sorteio da Dupla Secreta');
+    if (u) {
+    awardTalents(db, u, 3, '🤝', 'Participou do sorteio da Dupla Secreta');
+    unlockBadge(db, u, 'secret_pair');
+  }
   });
   saveDB(db);
   showToast(`${pairs.length} duplas sorteadas! 🎲`, 'success');
@@ -2903,6 +2953,65 @@ function givePairBonus(userId) {
 // ============================================================
 // 🪙 TALENTS & BADGES
 // ============================================================
+
+function checkAttendanceBadges(db, user) {
+  var count = user.yearAttendance || 0;
+  var milestones = [
+    { n: 5,  id: 'attend_5',  pts: 2  },
+    { n: 10, id: 'attend_10', pts: 4  },
+    { n: 15, id: 'attend_15', pts: 10 },
+    { n: 20, id: 'attend_20', pts: 15 },
+    { n: 25, id: 'attend_25', pts: 20 },
+    { n: 30, id: 'attend_30', pts: 30 },
+  ];
+  milestones.forEach(function(m) {
+    if (count >= m.n && !(user.badges||[]).includes(m.id)) {
+      unlockBadge(db, user, m.id);
+      awardTalents(db, user, m.pts, '📅', 'Conquista de presença desbloqueada!');
+    }
+  });
+}
+
+function checkVotesBadges(db, user) {
+  var count = user.yearVotesReceived || 0;
+  var milestones = [
+    { n: 3,  id: 'votes_3',  pts: 5  },
+    { n: 6,  id: 'votes_6',  pts: 10 },
+    { n: 10, id: 'votes_10', pts: 15 },
+  ];
+  milestones.forEach(function(m) {
+    if (count >= m.n && !(user.badges||[]).includes(m.id)) {
+      unlockBadge(db, user, m.id);
+      awardTalents(db, user, m.pts, '⭐', 'Conquista de votos desbloqueada!');
+    }
+  });
+}
+
+function checkLikesBadges(db, user) {
+  var count = user.totalLikesReceived || 0;
+  if (count >= 1 && !(user.badges||[]).includes('likes_1')) {
+    unlockBadge(db, user, 'likes_1');
+    awardTalents(db, user, 2, '❤️', 'Primeira curtida no mural!');
+  }
+  if (count >= 5 && !(user.badges||[]).includes('likes_5')) {
+    unlockBadge(db, user, 'likes_5');
+    awardTalents(db, user, 2, '💖', '5 curtidas no mural!');
+  }
+}
+
+// Registra presença única por domingo via votação
+function registerAttendanceIfNewSunday(db, user) {
+  var today = new Date();
+  var sunday = today.getDay() === 0;
+  var dateStr = today.toISOString().split('T')[0];
+  if (!user.lastAttendanceDate || user.lastAttendanceDate !== dateStr) {
+    user.lastAttendanceDate = dateStr;
+    if (!user.yearAttendance) user.yearAttendance = 0;
+    user.yearAttendance++;
+    checkAttendanceBadges(db, user);
+  }
+}
+
 function awardTalents(db, user, amount, icon, desc) {
   user.talents = (user.talents||0) + amount;
   user.weeklyTalents = (user.weeklyTalents||0) + amount;
