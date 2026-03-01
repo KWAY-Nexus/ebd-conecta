@@ -397,7 +397,7 @@
       <span class="nav-icon">🏆</span><span class="nav-label">Ranking</span>
     </button>
     <button class="nav-item" onclick="showStudentScreen('profile')" data-screen="profile">
-      <span class="nav-icon" style="font-size:18px">🙋</span><span class="nav-label">Perfil</span>
+      <span class="nav-icon">👤</span><span class="nav-label">Perfil</span>
     </button>
   </nav>
 </div>
@@ -428,7 +428,7 @@
       <span class="nav-icon">🏆</span><span class="nav-label">Ranking</span>
     </button>
     <button class="nav-item" onclick="showStudentScreen('profile')" data-screen="profile">
-      <span class="nav-icon" style="font-size:18px">🙋</span><span class="nav-label">Perfil</span>
+      <span class="nav-icon">👤</span><span class="nav-label">Perfil</span>
     </button>
   </nav>
 </div>
@@ -450,7 +450,7 @@
       <span class="nav-icon">🏆</span><span class="nav-label">Ranking</span>
     </button>
     <button class="nav-item active" onclick="showStudentScreen('profile')" data-screen="profile">
-      <span class="nav-icon" style="font-size:18px">🙋</span><span class="nav-label">Perfil</span>
+      <span class="nav-icon">👤</span><span class="nav-label">Perfil</span>
     </button>
   </nav>
 </div>
@@ -846,25 +846,24 @@ const DB_KEY = 'ebd_conecta_v1';
 const AVATARS = ['😊','🤩','😎','🥳','🤗','😇','🌟','🦁','🐯','🦊','🐼','🐸','🦋','🌸','⚡'];
 
 const BADGES_DEF = [
-  { id: 'first_delivery', icon: '🌟', name: 'Primeira Entrega',      desc: 'Enviou o 1º desafio da semana' },
-  { id: 'sharp_eye_3',   icon: '🎯', name: 'Mira Certeira',         desc: 'Acertou 3 Quem Sou Eu seguidos' },
-  { id: 'top1_month',    icon: '👑', name: 'Top 1 do Mês',          desc: 'Ficou em 1º no ranking mensal' },
-  { id: 'streak_4',      icon: '🔥', name: 'Em Chamas',             desc: 'Votou ou foi votado 4 domingos seguidos' },
-  { id: 'open_heart',    icon: '🤗', name: 'Coração Aberto',        desc: 'Comentou em 10 posts de colegas' },
-  { id: 'legendary',     icon: '✨', name: 'Protagonista Lendária', desc: '80%+ erraram seu fato falso no Quem Sou Eu' },
-  { id: 'attend_5',  icon: '📅', name: 'Frequente',        desc: 'Participou de 5 domingos no ano',   pts: '+2 Talentos' },
-  { id: 'attend_10', icon: '📆', name: 'Assíduo',          desc: 'Participou de 10 domingos no ano',  pts: '+4 Talentos' },
-  { id: 'attend_15', icon: '🗓️', name: 'Dedicado',         desc: 'Participou de 15 domingos no ano',  pts: '+10 Talentos' },
-  { id: 'attend_20', icon: '🏅', name: 'Comprometido',     desc: 'Participou de 20 domingos no ano',  pts: '+15 Talentos' },
-  { id: 'attend_25', icon: '🥈', name: 'Guardião da EBD',  desc: 'Participou de 25 domingos no ano',  pts: '+20 Talentos' },
-  { id: 'attend_30', icon: '🏆', name: 'Lenda da EBD',     desc: 'Participou de 30 domingos no ano',  pts: '+30 Talentos' },
-  { id: 'votes_3',  icon: '⭐', name: 'Notado pela Turma', desc: 'Recebeu 3 votos no Destaque no ano', pts: '+5 Talentos' },
-  { id: 'votes_6',  icon: '🌠', name: 'Destaque da Turma', desc: 'Recebeu 6 votos no Destaque no ano', pts: '+10 Talentos' },
-  { id: 'votes_10', icon: '💫', name: 'Referência da Turma',desc: 'Recebeu 10 votos no Destaque no ano',pts: '+15 Talentos' },
-  { id: 'likes_1',  icon: '❤️', name: 'Primeiro Like',     desc: 'Seu mural recebeu a 1ª curtida',    pts: '+2 Talentos' },
-  { id: 'likes_5',  icon: '💖', name: 'Querido da Turma',  desc: 'Seu mural recebeu 5 curtidas',       pts: '+2 Talentos' },
-  { id: 'whoami_voted', icon: '🔍', name: 'Detetive',      desc: 'Votou no Quem Sou Eu de um colega' },
-  { id: 'secret_pair',  icon: '🤝', name: 'Parceiro Fiel', desc: 'Completou a missão da Dupla Secreta' },
+  { id: 'first_delivery', icon: '🌟', name: 'Primeira Entrega',      desc: 'Enviou o 1º desafio da semana',                    pts: '+5 Talentos'  },
+  { id: 'sharp_eye_3',   icon: '🎯', name: 'Mira Certeira',         desc: 'Acertou 3 Quem Sou Eu seguidos',                   pts: '+5 Talentos'  },
+  { id: 'top1_month',    icon: '👑', name: 'Top 1 do Mês',          desc: 'Ficou em 1º no ranking mensal',                    pts: '+15 Talentos' },
+  { id: 'streak_4',      icon: '🔥', name: 'Em Chamas',             desc: 'Foi votado em 4 domingos diferentes',              pts: '+10 Talentos' },
+  { id: 'legendary',     icon: '✨', name: 'Protagonista Lendária', desc: '70%+ dos alunos responderam seu Quem Sou Eu',       pts: '+5 Talentos'  },
+  { id: 'attend_5',      icon: '📅', name: 'Frequente',             desc: 'Participou de 5 domingos no ano',                  pts: '+2 Talentos'  },
+  { id: 'attend_10',     icon: '📆', name: 'Assíduo',               desc: 'Participou de 10 domingos no ano',                 pts: '+4 Talentos'  },
+  { id: 'attend_15',     icon: '🗓️', name: 'Dedicado',              desc: 'Participou de 15 domingos no ano',                 pts: '+10 Talentos' },
+  { id: 'attend_20',     icon: '🏅', name: 'Comprometido',          desc: 'Participou de 20 domingos no ano',                 pts: '+15 Talentos' },
+  { id: 'attend_25',     icon: '🥈', name: 'Guardião da EBD',       desc: 'Participou de 25 domingos no ano',                 pts: '+20 Talentos' },
+  { id: 'attend_30',     icon: '🏆', name: 'Lenda da EBD',          desc: 'Participou de 30 domingos no ano',                 pts: '+30 Talentos' },
+  { id: 'votes_3',       icon: '⭐', name: 'Notado pela Turma',     desc: 'Recebeu 3 votos no Destaque no ano',               pts: '+5 Talentos'  },
+  { id: 'votes_6',       icon: '🌠', name: 'Destaque da Turma',     desc: 'Recebeu 6 votos no Destaque no ano',               pts: '+10 Talentos' },
+  { id: 'votes_10',      icon: '💫', name: 'Referência da Turma',   desc: 'Recebeu 10 votos no Destaque no ano',              pts: '+15 Talentos' },
+  { id: 'likes_1',       icon: '❤️', name: 'Primeiro Like',         desc: 'Seu mural recebeu a 1ª curtida',                   pts: '+2 Talentos'  },
+  { id: 'likes_5',       icon: '💖', name: 'Querido da Turma',      desc: 'Seu mural recebeu 5 curtidas',                     pts: '+2 Talentos'  },
+  { id: 'whoami_voted',  icon: '🔍', name: 'Detetive',              desc: 'Votou no Quem Sou Eu de um colega',                pts: '+2 Talentos'  },
+  { id: 'secret_pair',   icon: '🤝', name: 'Parceiro Fiel',         desc: 'Completou a missão da Dupla Secreta',              pts: '+5 Talentos'  },
 ];
 
 const CHALLENGE_TEMPLATES = [
@@ -1304,7 +1303,7 @@ function renderProfile() {
           <div class="badge-item ${b.unlocked?'unlocked':''}" title="${b.desc}" style="cursor:help">
             <div class="badge-icon">${b.icon}</div>
             <div class="badge-name">${b.name}</div>
-            ${b.pts ? '<div style="font-size:9px;color:var(--gold-dark);font-weight:700;margin-top:3px">'+b.pts+'</div>' : ''}
+            ${b.pts ? '<div style="font-size:9px;color:var(--gold-dark,#b45309);font-weight:700;margin-top:3px">'+b.pts+'</div>' : ''}
           </div>`).join('')}
       </div>
       <div class="section-title mt-16">📜 Histórico de Talentos</div>
@@ -1411,7 +1410,19 @@ function submitVote() {
     db.voting.votes.push({ voterId: currentUser.id, targetId: sid, category: cat, sessionId: db.voting.sessionId });
     // Give talentos to voted
     const target = db.users.find(u => u.id === sid);
-    if (target) awardTalents(db, target, 5, '🗳️', 'Recebeu voto no Destaque');
+    if (target) {
+      awardTalents(db, target, 5, '🗳️', 'Recebeu voto no Destaque');
+      if (!target.yearVotesReceived) target.yearVotesReceived = 0;
+      target.yearVotesReceived++;
+      const vc = target.yearVotesReceived;
+      [[3,'votes_3',5],[6,'votes_6',10],[10,'votes_10',15]].forEach(function(m) {
+        if (vc >= m[0] && !(target.badges||[]).includes(m[1])) {
+          unlockBadge(db, target, m[1]);
+          awardTalents(db, target, m[2], '⭐', 'Conquista de votos desbloqueada!');
+        }
+      });
+      if (vc >= 4 && !(target.badges||[]).includes('streak_4')) unlockBadge(db, target, 'streak_4');
+    }
   }
   // Give talentos to voter
   const voter = db.users.find(u => u.id === currentUser.id);
@@ -1675,7 +1686,7 @@ function submitComment() {
     else commenter.history.push({type:'comment',ts:Date.now()});
     // Badge check
     const totalComments = (commenter.history||[]).filter(h => h.type === 'comment').length;
-    if (totalComments >= 10) unlockBadge(db, commenter, 'open_heart');
+    // open_heart badge removida
   }
   saveDB(db);
   closeModal('modalComment');
@@ -1903,7 +1914,13 @@ function submitWhoAmIVote() {
   const db = initDB();
   db.whoami.votes.push({ userId: currentUser.id, guessIndex: selectedFactIdx });
   const user = db.users.find(u => u.id === currentUser.id);
-  if (user) awardTalents(db, user, 1, '🔍', 'Participou do Quem Sou Eu');
+  if (user) {
+    awardTalents(db, user, 2, '🔍', 'Participou do Quem Sou Eu');
+    if (!(user.badges||[]).includes('whoami_voted')) {
+      unlockBadge(db, user, 'whoami_voted');
+      awardTalents(db, user, 2, '🔍', 'Conquista Detetive desbloqueada!');
+    }
+  }
   saveDB(db);
   showToast('+1 Talento! Aguarde a revelação! 🔍', 'success');
   renderWhoAmI();
@@ -2552,7 +2569,10 @@ function approveSubmission(subId) {
   const user = db.users.find(u => u.id === sub.userId);
   if (user) {
     awardTalents(db, user, 10, '📸', 'Entrega aprovada no desafio');
-    unlockBadge(db, user, 'first_delivery');
+    if (!(user.badges||[]).includes('first_delivery')) {
+      unlockBadge(db, user, 'first_delivery');
+      awardTalents(db, user, 5, '🌟', 'Conquista Primeira Entrega desbloqueada!');
+    }
   }
   saveDB(db);
   showToast('Entrega aprovada! +10 Talentos para o aluno ✅', 'success');
@@ -2712,16 +2732,19 @@ function revealWhoAmI() {
     if (v.guessIndex === falsoIdx) {
       awardTalents(db, u, 3, '🔍', 'Acertou o fato falso!');
       u.whoamiCorrectStreak = (u.whoamiCorrectStreak || 0) + 1;
-      if (u.whoamiCorrectStreak >= 3) unlockBadge(db, u, 'sharp_eye_3');
+      if (u.whoamiCorrectStreak >= 3 && !(u.badges||[]).includes('sharp_eye_3')) {
+        unlockBadge(db, u, 'sharp_eye_3');
+        awardTalents(db, u, 5, '🎯', 'Conquista Mira Certeira desbloqueada!');
+      }
     } else {
       u.whoamiCorrectStreak = 0;
     }
   });
-  // Bonus if 80%+ wrong
-  if (pctWrong >= 0.8) {
+  // Bonus if 70%+ answered (legendary)
+  if (pctWrong >= 0.7) {
     const prot = db.users.find(u => u.id === db.whoami.current.userId);
     if (prot) {
-      awardTalents(db, prot, 5, '✨', 'Protagonista lendária: 80%+ erraram!');
+      awardTalents(db, prot, 5, '✨', 'Protagonista Lendária: 70%+ participaram!');
       unlockBadge(db, prot, 'legendary');
     }
   }
@@ -2867,7 +2890,13 @@ function drawSecretPairs() {
   // Award participation
   students.forEach(s => {
     const u = db.users.find(u => u.id === s.id);
-    if (u) awardTalents(db, u, 3, '🤝', 'Participou do sorteio da Dupla Secreta');
+    if (u) {
+    awardTalents(db, u, 3, '🤝', 'Participou do sorteio da Dupla Secreta');
+    if (!(u.badges||[]).includes('secret_pair')) {
+      unlockBadge(db, u, 'secret_pair');
+      awardTalents(db, u, 5, '🤝', 'Conquista Parceiro Fiel desbloqueada!');
+    }
+  }
   });
   saveDB(db);
   showToast(`${pairs.length} duplas sorteadas! 🎲`, 'success');
@@ -2930,11 +2959,13 @@ function unlockBadge(db, user, badgeId) {
   if (!user.badges) user.badges = [];
   if (!user.badges.includes(badgeId)) {
     user.badges.push(badgeId);
-    // Mark as pending notification so confetti shows on next login
     if (!user.pendingBadges) user.pendingBadges = [];
     user.pendingBadges.push(badgeId);
     const badge = BADGES_DEF.find(b => b.id === badgeId);
-    if (badge) showToast(`🏅 Conquista desbloqueada: ${badge.name}!`, 'gold');
+    if (badge) showToast('🏅 Conquista desbloqueada: ' + badge.name + '!', 'gold');
+    // Auto-award talentos por conquistas especiais
+    if (badgeId === 'top1_month') awardTalents(db, user, 15, '👑', 'Conquista Top 1 do Mês desbloqueada!');
+    if (badgeId === 'streak_4')   awardTalents(db, user, 10, '🔥', 'Conquista Em Chamas desbloqueada!');
   }
 }
 
