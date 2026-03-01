@@ -1,0 +1,3315 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#1e3a8a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="EBD Conecta">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <title>EBD Conecta</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --blue: #1e3a8a;
+      --blue-mid: #2563eb;
+      --blue-light: #3b82f6;
+      --blue-pale: #dbeafe;
+      --gold: #f59e0b;
+      --gold-light: #fde68a;
+      --gold-dark: #b45309;
+      --white: #ffffff;
+      --bg: #eef2ff;
+      --card: #ffffff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --danger: #ef4444;
+      --success: #22c55e;
+      --radius: 16px;
+      --radius-sm: 10px;
+      --shadow: 0 4px 24px rgba(30,58,138,.12);
+      --shadow-sm: 0 2px 8px rgba(30,58,138,.08);
+    }
+    html, body { height: 100%; font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; }
+    body { -webkit-tap-highlight-color: transparent; }
+
+    /* ===== SCREENS ===== */
+    .screen { display: none; min-height: 100vh; flex-direction: column; animation: fadeIn .3s ease; }
+    .screen.active { display: flex; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ===== LOGIN ===== */
+    #screen-login {
+      background: linear-gradient(160deg, var(--blue) 0%, var(--blue-mid) 60%, #1d4ed8 100%);
+      align-items: center; justify-content: center; padding: 24px;
+    }
+    .login-logo { text-align: center; margin-bottom: 40px; }
+    .login-logo .logo-icon { width: 80px; height: 80px; background: rgba(255,255,255,.15); border-radius: 24px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 40px; backdrop-filter: blur(10px); border: 2px solid rgba(255,255,255,.3); }
+    .login-logo h1 { color: #fff; font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
+    .login-logo p { color: rgba(255,255,255,.7); font-size: 14px; margin-top: 4px; }
+    .login-card { background: #fff; border-radius: 24px; padding: 28px 24px; width: 100%; max-width: 380px; box-shadow: 0 20px 60px rgba(0,0,0,.25); }
+    .login-card h2 { font-size: 18px; font-weight: 700; color: var(--blue); margin-bottom: 20px; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
+    .form-group input { width: 100%; padding: 13px 16px; border: 2px solid var(--border); border-radius: var(--radius-sm); font-family: 'Poppins', sans-serif; font-size: 15px; color: var(--text); outline: none; transition: border-color .2s; background: var(--bg); }
+    .form-group input:focus { border-color: var(--blue-light); background: #fff; }
+    .pin-input { letter-spacing: 8px; font-size: 24px; font-weight: 700; text-align: center; }
+    .btn { width: 100%; padding: 14px; border: none; border-radius: var(--radius-sm); font-family: 'Poppins', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; transition: all .2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .btn-primary { background: linear-gradient(135deg, var(--blue) 0%, var(--blue-mid) 100%); color: #fff; box-shadow: 0 4px 16px rgba(37,99,235,.4); }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(37,99,235,.5); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-gold { background: linear-gradient(135deg, var(--gold-dark) 0%, var(--gold) 100%); color: #fff; box-shadow: 0 4px 16px rgba(245,158,11,.4); }
+    .btn-outline { background: transparent; border: 2px solid var(--border); color: var(--text-muted); }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-success { background: var(--success); color: #fff; }
+    .btn-sm { padding: 8px 14px; font-size: 13px; width: auto; }
+
+    /* ===== MAIN LAYOUT ===== */
+    .app-header { background: var(--blue); color: #fff; padding: 16px 20px 12px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(0,0,0,.2); }
+    .app-header .header-top { display: flex; align-items: center; justify-content: space-between; }
+    .header-title { font-size: 18px; font-weight: 800; letter-spacing: -0.3px; }
+    .header-back { background: rgba(255,255,255,.15); border: none; color: #fff; width: 36px; height: 36px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+    .header-actions { display: flex; gap: 8px; }
+
+    /* ===== BOTTOM NAV ===== */
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 1px solid var(--border); display: flex; z-index: 200; padding-bottom: env(safe-area-inset-bottom, 0); box-shadow: 0 -4px 20px rgba(0,0,0,.08); }
+    .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 10px 4px 8px; cursor: pointer; position: relative; border: none; background: transparent; font-family: 'Poppins', sans-serif; color: var(--text-muted); transition: color .2s; }
+    .nav-item.active { color: var(--blue); }
+    .nav-item .nav-icon { font-size: 20px; margin-bottom: 3px; }
+    .nav-item .nav-label { font-size: 10px; font-weight: 600; }
+    .nav-badge { position: absolute; top: 7px; right: calc(50% - 16px); background: var(--danger); color: #fff; width: 16px; height: 16px; border-radius: 50%; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+
+    /* ===== SCROLLABLE CONTENT ===== */
+    .content { flex: 1; overflow-y: auto; padding: 16px 16px 80px; }
+    .content::-webkit-scrollbar { display: none; }
+
+    /* ===== CARDS ===== */
+    .card { background: var(--card); border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow-sm); margin-bottom: 14px; }
+    .card-title { font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 12px; }
+
+    /* ===== HERO CARD ===== */
+    .hero-card { background: linear-gradient(135deg, var(--blue) 0%, var(--blue-mid) 100%); border-radius: var(--radius); padding: 20px; color: #fff; margin-bottom: 16px; position: relative; overflow: hidden; }
+    .hero-card::before { content: ''; position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(255,255,255,.08); border-radius: 50%; }
+    .hero-card::after { content: ''; position: absolute; bottom: -30px; right: 20px; width: 80px; height: 80px; background: rgba(255,255,255,.06); border-radius: 50%; }
+    .hero-user { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+    .avatar { width: 52px; height: 52px; border-radius: 50%; border: 3px solid rgba(255,255,255,.4); object-fit: cover; font-size: 24px; background: rgba(255,255,255,.15); display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; }
+    .avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .hero-name { font-size: 18px; font-weight: 800; line-height: 1.1; }
+    .hero-subtitle { font-size: 12px; opacity: .7; margin-top: 2px; }
+    .talents-display { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,.15); border-radius: var(--radius-sm); padding: 12px 16px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,.2); }
+    .talents-display .coin { font-size: 28px; }
+    .talents-count { font-size: 28px; font-weight: 900; color: var(--gold-light); line-height: 1; }
+    .talents-label { font-size: 11px; opacity: .8; }
+
+    /* ===== MODULE CARDS ===== */
+    .module-card { border-radius: var(--radius); padding: 18px; margin-bottom: 12px; cursor: pointer; transition: transform .2s, box-shadow .2s; position: relative; overflow: hidden; }
+    .module-card:active { transform: scale(.97); }
+    .module-card.blue { background: linear-gradient(135deg, #1e3a8a, #2563eb); color: #fff; }
+    .module-card.gold { background: linear-gradient(135deg, #92400e, #f59e0b); color: #fff; }
+    .module-card.purple { background: linear-gradient(135deg, #4c1d95, #7c3aed); color: #fff; }
+    .module-card.teal { background: linear-gradient(135deg, #134e4a, #0d9488); color: #fff; }
+    .module-card.inactive { opacity: .55; cursor: default; }
+    .module-card .module-icon { font-size: 32px; margin-bottom: 10px; }
+    .module-card .module-title { font-size: 17px; font-weight: 800; margin-bottom: 4px; }
+    .module-card .module-desc { font-size: 12px; opacity: .8; }
+    .module-card .module-badge { position: absolute; top: 14px; right: 14px; background: rgba(255,255,255,.25); border-radius: 20px; padding: 4px 10px; font-size: 11px; font-weight: 700; backdrop-filter: blur(5px); }
+    .module-card.inactive .module-badge { background: rgba(0,0,0,.2); }
+
+    /* ===== RANKING ===== */
+    .ranking-podium { display: flex; align-items: flex-end; justify-content: center; gap: 12px; margin-bottom: 20px; padding: 20px 0; }
+    .podium-item { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .podium-item:nth-child(1) .podium-avatar { width: 64px; height: 64px; border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-light); }
+    .podium-item:nth-child(2) .podium-avatar { width: 52px; height: 52px; }
+    .podium-item:nth-child(3) .podium-avatar { width: 52px; height: 52px; }
+    .podium-avatar { border-radius: 50%; border: 3px solid #e2e8f0; background: var(--blue-pale); display: flex; align-items: center; justify-content: center; font-size: 22px; overflow: hidden; }
+    .podium-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .podium-name { font-size: 11px; font-weight: 700; text-align: center; max-width: 72px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .podium-pts { font-size: 13px; font-weight: 800; color: var(--blue); }
+    .podium-medal { font-size: 20px; }
+    .podium-bar { background: linear-gradient(to top, var(--blue), var(--blue-light)); border-radius: 8px 8px 0 0; width: 52px; }
+    .podium-bar.first { height: 64px; background: linear-gradient(to top, var(--gold-dark), var(--gold)); }
+    .podium-bar.second { height: 50px; }
+    .podium-bar.third { height: 38px; background: linear-gradient(to top, #92400e, #d97706); }
+    .rank-list-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+    .rank-list-item:last-child { border-bottom: none; }
+    .rank-num { font-size: 16px; font-weight: 800; color: var(--text-muted); width: 28px; text-align: center; }
+    .rank-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--blue-pale); display: flex; align-items: center; justify-content: center; font-size: 18px; overflow: hidden; flex-shrink: 0; }
+    .rank-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .rank-name { flex: 1; font-size: 14px; font-weight: 600; }
+    .rank-pts { font-size: 14px; font-weight: 800; color: var(--blue); display: flex; align-items: center; gap: 4px; }
+
+    /* ===== VOTING MODULE ===== */
+    .voter-list-item { display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: var(--radius-sm); border: 2px solid var(--border); margin-bottom: 10px; cursor: pointer; transition: all .2s; }
+    .voter-list-item.selected { border-color: var(--blue-light); background: var(--blue-pale); }
+    .voter-name { flex: 1; font-size: 14px; font-weight: 600; }
+    .voter-check { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; transition: all .2s; }
+    .voter-list-item.selected .voter-check { background: var(--blue); border-color: var(--blue); color: #fff; }
+    .category-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; padding: 10px 14px; background: var(--bg); border-radius: 10px; }
+    .chip { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; border: 2px solid var(--border); cursor: pointer; transition: all .2s; background: #fff; }
+    .chip.selected { border-color: var(--blue); background: var(--blue); color: #fff; }
+
+    /* ===== CHALLENGE ===== */
+    .feed-post { background: #fff; border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); margin-bottom: 14px; }
+    .feed-post-header { display: flex; align-items: center; gap: 10px; padding: 14px 14px 10px; }
+    .feed-post-img { width: 100%; aspect-ratio: 4/3; object-fit: cover; background: var(--bg); }
+    .feed-post-img img { width: 100%; height: 100%; object-fit: cover; }
+    .feed-post-body { padding: 12px 14px; }
+    .feed-post-caption { font-size: 14px; line-height: 1.5; margin-bottom: 10px; }
+    .feed-post-actions { display: flex; gap: 16px; padding: 0 14px 14px; }
+    /* Photo grid */
+    .photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    .photo-grid-item { background:#fff; border-radius:8px; overflow:hidden; box-shadow:var(--shadow-sm); cursor:pointer; }
+    .photo-grid-thumb { width:100%; aspect-ratio:1/1; object-fit:cover; display:block; }
+    .photo-grid-footer { padding:5px 7px; display:flex; align-items:center; gap:4px; }
+    .photo-grid-author { font-size:10px; font-weight:700; color:var(--text); flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .photo-grid-likes { font-size:12px; color:#ef4444; white-space:nowrap; }
+    /* Lightbox */
+    .lightbox { position:fixed; inset:0; background:rgba(0,0,0,.92); z-index:9999; display:flex; flex-direction:column; }
+    .lightbox-img { flex:1; display:flex; align-items:center; justify-content:center; padding:16px; }
+    .lightbox-img img { max-width:100%; max-height:100%; border-radius:10px; object-fit:contain; }
+    .lightbox-bar { background:rgba(0,0,0,.6); padding:12px 16px; display:flex; align-items:center; gap:12px; }
+    .lightbox-close { background:rgba(255,255,255,.15); border:none; color:#fff; width:36px; height:36px; border-radius:50%; cursor:pointer; font-size:18px; margin-left:auto; }
+    .post-action-btn { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: var(--text-muted); background: none; border: none; cursor: pointer; transition: color .2s; font-family: 'Poppins', sans-serif; padding: 6px 10px; border-radius: 8px; }
+    .post-action-btn:hover { background: var(--bg); }
+    .post-action-btn.liked { color: var(--danger); }
+    .comments-section { padding: 0 14px 14px; border-top: 1px solid var(--border); padding-top: 12px; }
+    .comment-item { display: flex; gap: 8px; margin-bottom: 8px; }
+    .comment-text { background: var(--bg); border-radius: 12px; padding: 8px 12px; font-size: 13px; flex: 1; }
+    .comment-author { font-weight: 700; font-size: 12px; margin-bottom: 2px; }
+
+    /* ===== WHO AM I ===== */
+    .fact-card { border: 2px solid var(--border); border-radius: var(--radius-sm); padding: 16px; margin-bottom: 10px; cursor: pointer; transition: all .2s; display: flex; align-items: center; gap: 12px; }
+    .fact-card:hover { border-color: var(--blue-light); background: var(--blue-pale); }
+    .fact-card.selected { border-color: var(--blue); background: var(--blue-pale); }
+    .fact-card.correct { border-color: var(--success); background: #f0fdf4; }
+    .fact-card.wrong { border-color: var(--danger); background: #fef2f2; }
+    .fact-letter { width: 32px; height: 32px; border-radius: 50%; background: var(--blue-pale); color: var(--blue); font-weight: 800; font-size: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .fact-text { font-size: 14px; font-weight: 500; flex: 1; }
+
+    /* ===== SECRET PAIR ===== */
+    .pair-reveal-card { background: linear-gradient(135deg, var(--blue), var(--blue-mid)); border-radius: var(--radius); padding: 24px; text-align: center; color: #fff; margin-bottom: 16px; }
+    .pair-heart { font-size: 48px; margin-bottom: 12px; animation: heartbeat 1.5s ease-in-out infinite; }
+    @keyframes heartbeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
+
+    /* ===== PROFILE ===== */
+    .profile-header { background: linear-gradient(135deg, var(--blue), var(--blue-mid)); padding: 28px 20px 20px; color: #fff; text-align: center; margin-bottom: 16px; }
+    .profile-avatar { width: 80px; height: 80px; border-radius: 50%; border: 4px solid rgba(255,255,255,.4); margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; font-size: 36px; background: rgba(255,255,255,.15); overflow: hidden; }
+    .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .badges-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .badge-item { background: var(--bg); border-radius: var(--radius-sm); padding: 14px 10px; text-align: center; border: 2px solid var(--border); }
+    .badge-item.unlocked { border-color: var(--gold); background: #fffbeb; }
+    .badge-icon { font-size: 28px; margin-bottom: 6px; }
+    .badge-name { font-size: 10px; font-weight: 700; line-height: 1.3; }
+    .badge-item:not(.unlocked) { filter: grayscale(1); opacity: .5; }
+    .history-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .history-icon { width: 36px; height: 36px; border-radius: 10px; background: var(--blue-pale); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+    .history-desc { flex: 1; font-size: 13px; font-weight: 500; }
+    .history-pts { font-size: 14px; font-weight: 800; color: var(--success); }
+
+    /* ===== ADMIN ===== */
+    .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+    .stat-card { background: #fff; border-radius: var(--radius-sm); padding: 16px; box-shadow: var(--shadow-sm); text-align: center; }
+    .stat-value { font-size: 28px; font-weight: 900; color: var(--blue); line-height: 1; }
+    .stat-label { font-size: 11px; color: var(--text-muted); font-weight: 600; margin-top: 4px; text-transform: uppercase; }
+    .admin-menu-item { display: flex; align-items: center; gap: 14px; padding: 16px; background: #fff; border-radius: var(--radius-sm); margin-bottom: 10px; cursor: pointer; box-shadow: var(--shadow-sm); transition: all .2s; }
+    .admin-menu-item:active { transform: scale(.97); }
+    .admin-menu-icon { font-size: 24px; width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+    .admin-menu-icon.blue { background: var(--blue-pale); }
+    .admin-menu-icon.gold { background: #fffbeb; }
+    .admin-menu-icon.purple { background: #f5f3ff; }
+    .admin-menu-icon.teal { background: #f0fdfa; }
+    .admin-menu-text { flex: 1; }
+    .admin-menu-text strong { display: block; font-size: 14px; font-weight: 700; }
+    .admin-menu-text span { font-size: 12px; color: var(--text-muted); }
+    .toggle-switch { position: relative; display: inline-block; width: 50px; height: 26px; }
+    .toggle-switch input { display: none; }
+    .toggle-slider { position: absolute; inset: 0; background: #ccc; border-radius: 26px; cursor: pointer; transition: .3s; }
+    .toggle-slider:before { content: ''; position: absolute; width: 20px; height: 20px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: .3s; }
+    input:checked + .toggle-slider { background: var(--success); }
+    input:checked + .toggle-slider:before { transform: translateX(24px); }
+
+    /* ===== FORM ELEMENTS ===== */
+    .form-input { width: 100%; padding: 13px 16px; border: 2px solid var(--border); border-radius: var(--radius-sm); font-family: 'Poppins', sans-serif; font-size: 14px; color: var(--text); outline: none; transition: border-color .2s; background: var(--bg); }
+    .form-input:focus { border-color: var(--blue-light); background: #fff; }
+    .form-textarea { resize: vertical; min-height: 100px; }
+    .form-select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%2364748b' d='M6 8L0 0h12z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 40px; }
+    .label { display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
+    .form-group-mb { margin-bottom: 16px; }
+
+    /* ===== TOAST ===== */
+    .toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+    .toast { background: var(--text); color: #fff; padding: 12px 20px; border-radius: 12px; font-size: 14px; font-weight: 600; white-space: nowrap; animation: toastIn .3s ease; box-shadow: 0 8px 24px rgba(0,0,0,.25); }
+    .toast.success { background: var(--success); }
+    .toast.error { background: var(--danger); }
+    .toast.gold { background: var(--gold-dark); }
+    @keyframes toastIn { from { opacity: 0; transform: translateY(-16px) scale(.9); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+    /* ===== CONFETTI ===== */
+    .confetti-piece { position: fixed; width: 10px; height: 10px; top: -10px; opacity: 1; animation: confettiFall 3s linear forwards; pointer-events: none; z-index: 9998; border-radius: 2px; }
+    @keyframes confettiFall { to { transform: translateY(110vh) rotate(720deg); opacity: 0; } }
+
+    /* ===== MODAL ===== */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 500; align-items: flex-end; justify-content: center; }
+    .modal-overlay.active { display: flex; animation: fadeIn .2s ease; }
+    .modal-sheet { background: #fff; border-radius: 24px 24px 0 0; padding: 24px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; animation: slideUp .3s ease; }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .modal-handle { width: 40px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 20px; }
+    .modal-title { font-size: 18px; font-weight: 800; margin-bottom: 16px; }
+
+    /* ===== UTILS ===== */
+    .flex-between { display: flex; align-items: center; justify-content: space-between; }
+    .flex-center { display: flex; align-items: center; justify-content: center; }
+    .gap-8 { gap: 8px; }
+    .gap-12 { gap: 12px; }
+    .mt-8 { margin-top: 8px; }
+    .mt-16 { margin-top: 16px; }
+    .mb-16 { margin-bottom: 16px; }
+    .text-muted { color: var(--text-muted); font-size: 13px; }
+    .text-small { font-size: 12px; }
+    .text-center { text-align: center; }
+    .font-bold { font-weight: 700; }
+    .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+    .empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; }
+    .empty-state p { font-size: 14px; line-height: 1.5; }
+    .divider { height: 1px; background: var(--border); margin: 16px 0; }
+    .pill { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+    .pill-blue { background: var(--blue-pale); color: var(--blue); }
+    .pill-gold { background: #fffbeb; color: var(--gold-dark); }
+    .pill-green { background: #f0fdf4; color: #16a34a; }
+    .pill-red { background: #fef2f2; color: var(--danger); }
+    .section-title { font-size: 16px; font-weight: 800; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .avatar-options { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 10px; }
+    .avatar-option { font-size: 28px; width: 52px; height: 52px; border-radius: 50%; border: 3px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all .2s; }
+    .avatar-option.selected { border-color: var(--blue); background: var(--blue-pale); }
+    .upload-area { border: 2px dashed var(--border); border-radius: var(--radius-sm); padding: 20px; text-align: center; cursor: pointer; transition: all .2s; }
+    .upload-area:hover { border-color: var(--blue-light); background: var(--blue-pale); }
+
+    /* ===== NOTIFICATION DOT ===== */
+    .notif-dot { width: 8px; height: 8px; background: var(--danger); border-radius: 50%; display: inline-block; margin-left: 4px; }
+
+    /* ===== Loading ===== */
+    .loading-spinner { width: 24px; height: 24px; border: 3px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .page-loader { display: flex; align-items: center; justify-content: center; padding: 40px; }
+
+    /* ===== Scrollable tabs ===== */
+    .tab-bar { display: flex; gap: 8px; overflow-x: auto; padding: 4px 0 12px; scrollbar-width: none; margin-bottom: 4px; }
+    .tab-bar::-webkit-scrollbar { display: none; }
+    .tab-btn { padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; white-space: nowrap; border: none; cursor: pointer; font-family: 'Poppins', sans-serif; transition: all .2s; background: #fff; color: var(--text-muted); box-shadow: var(--shadow-sm); }
+    .tab-btn.active { background: var(--blue); color: #fff; }
+
+    /* Admin student list */
+    .student-item { display: flex; align-items: center; gap: 12px; padding: 14px; background: #fff; border-radius: var(--radius-sm); margin-bottom: 8px; box-shadow: var(--shadow-sm); }
+    .student-item-actions { display: flex; gap: 8px; }
+    .icon-btn { width: 36px; height: 36px; border-radius: 10px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; transition: all .2s; font-family: 'Poppins', sans-serif; }
+    .icon-btn:active { transform: scale(.9); }
+    .icon-btn-blue { background: var(--blue-pale); color: var(--blue); }
+    .icon-btn-red { background: #fef2f2; color: var(--danger); }
+    .icon-btn-gold { background: #fffbeb; color: var(--gold-dark); }
+
+    /* Vote result bars */
+    .result-bar { background: var(--bg); border-radius: 8px; overflow: hidden; height: 8px; margin-top: 6px; }
+    .result-bar-fill { height: 100%; background: linear-gradient(90deg, var(--blue), var(--blue-light)); border-radius: 8px; transition: width .8s ease; }
+    .result-item { margin-bottom: 14px; }
+    .result-item-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; font-size: 13px; font-weight: 600; }
+
+    /* Week challenge image preview */
+    .img-preview { width: 100%; border-radius: 12px; overflow: hidden; background: var(--bg); margin-top: 10px; display: none; }
+    .img-preview img { width: 100%; object-fit: cover; max-height: 240px; }
+    
+    /* Floating action button */
+    .fab { position: fixed; bottom: 90px; right: 20px; width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, var(--gold-dark), var(--gold)); border: none; cursor: pointer; box-shadow: 0 6px 20px rgba(245,158,11,.5); font-size: 24px; display: flex; align-items: center; justify-content: center; z-index: 150; transition: all .2s; }
+    .fab:active { transform: scale(.9); }
+  </style>
+</head>
+<body>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ========== SCREEN: LOGIN ========== -->
+<div id="screen-login" class="screen active">
+  <div class="login-logo">
+    <div class="logo-icon">📖</div>
+    <h1>EBD Conecta</h1>
+    <p>Escola Bíblica Dominical</p>
+  </div>
+  <div class="login-card">
+    <h2>Fazer login</h2>
+    <div class="form-group">
+      <label>Apelido / Username</label>
+      <input type="text" id="loginUsername" placeholder="Seu apelido..." autocomplete="off" autocapitalize="none">
+    </div>
+    <div class="form-group">
+      <label>PIN (4 dígitos)</label>
+      <input type="password" id="loginPin" class="pin-input" maxlength="4" placeholder="••••" inputmode="numeric">
+    </div>
+    <button class="btn btn-primary" onclick="doLogin()">
+      <span>Entrar</span> <span>→</span>
+    </button>
+    <p class="text-muted text-center mt-8" style="font-size:11px">Fale com seu professor se esqueceu o PIN</p>
+  </div>
+</div>
+
+<!-- ========== SCREEN: HOME (STUDENT) ========== -->
+<div id="screen-home" class="screen">
+  <div class="content">
+    <!-- Hero card -->
+    <div class="hero-card" id="homeHeroCard">
+      <div class="hero-user">
+        <div class="avatar" id="homeAvatar"></div>
+        <div>
+          <div class="hero-name" id="homeName"></div>
+          <div class="hero-subtitle">Bem-vindo(a) de volta! 🙏</div>
+        </div>
+        <button onclick="doLogout()" style="margin-left:auto;background:rgba(255,255,255,.2);border:none;color:#fff;width:38px;height:38px;border-radius:12px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;z-index:10" title="Sair">🚪</button>
+      </div>
+      <div class="talents-display">
+        <span class="coin" style="font-size:28px;display:inline-block;background:var(--gold);color:#fff;width:40px;height:40px;border-radius:50%;text-align:center;line-height:40px;font-weight:900;font-style:normal">T</span>
+        <div>
+          <div class="talents-count" id="homeTalents">0</div>
+        <div class="talents-label">Talentos esta semana · <span id="homeTalentsMonth">0</span> no mês</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick ranking -->
+    <div class="card">
+      <div class="card-title">🏆 Top 3 da Semana</div>
+      <div id="homeRankingQuick"></div>
+    </div>
+
+    <!-- Activities -->
+    <div class="section-title">⚡ Atividades</div>
+    <div id="homeActivities"></div>
+  </div>
+  <nav class="bottom-nav" id="bottomNavStudent">
+    <button class="nav-item active" onclick="showStudentScreen('home')" data-screen="home">
+      <span class="nav-icon">🏠</span><span class="nav-label">Início</span>
+    </button>
+    <button class="nav-item" onclick="showStudentScreen('ranking')" data-screen="ranking">
+      <span class="nav-icon">🏆</span><span class="nav-label">Ranking</span>
+    </button>
+    <button class="nav-item" onclick="showStudentScreen('profile')" data-screen="profile">
+      <span class="nav-icon">👤</span><span class="nav-label">Perfil</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ========== SCREEN: RANKING (STUDENT) ========== -->
+<div id="screen-ranking" class="screen">
+  <div class="app-header">
+    <div class="header-top">
+      <div class="header-title">🏆 Ranking</div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchRankingTab(this,'week')">Semana</button>
+      <button class="tab-btn" onclick="switchRankingTab(this,'month')">Mês</button>
+      <button class="tab-btn" onclick="switchRankingTab(this,'total')">Total</button>
+    </div>
+    <div id="rankingPodium"></div>
+    <div class="card">
+      <div id="rankingList"></div>
+    </div>
+  </div>
+  <nav class="bottom-nav">
+    <button class="nav-item" onclick="showStudentScreen('home')" data-screen="home">
+      <span class="nav-icon">🏠</span><span class="nav-label">Início</span>
+    </button>
+    <button class="nav-item active" onclick="showStudentScreen('ranking')" data-screen="ranking">
+      <span class="nav-icon">🏆</span><span class="nav-label">Ranking</span>
+    </button>
+    <button class="nav-item" onclick="showStudentScreen('profile')" data-screen="profile">
+      <span class="nav-icon">👤</span><span class="nav-label">Perfil</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ========== SCREEN: PROFILE (STUDENT) ========== -->
+<div id="screen-profile" class="screen">
+  <div class="app-header">
+    <div class="header-top">
+      <div class="header-title">👤 Meu Perfil</div>
+      <button onclick="doLogout()" style="background:rgba(255,255,255,.15);border:none;color:#fff;padding:8px 14px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:700;font-family:'Poppins',sans-serif;display:flex;align-items:center;gap:6px">🚪 Sair</button>
+    </div>
+  </div>
+  <div id="profileContent"></div>
+  <nav class="bottom-nav">
+    <button class="nav-item" onclick="showStudentScreen('home')" data-screen="home">
+      <span class="nav-icon">🏠</span><span class="nav-label">Início</span>
+    </button>
+    <button class="nav-item" onclick="showStudentScreen('ranking')" data-screen="ranking">
+      <span class="nav-icon">🏆</span><span class="nav-label">Ranking</span>
+    </button>
+    <button class="nav-item active" onclick="showStudentScreen('profile')" data-screen="profile">
+      <span class="nav-icon">👤</span><span class="nav-label">Perfil</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ========== SCREEN: MODULE VOTING ========== -->
+<div id="screen-voting" class="screen">
+  <div class="app-header">
+    <div class="header-top">
+      <button class="header-back" onclick="goBack()">←</button>
+      <div class="header-title">🗳️ Destaque da Aula</div>
+    </div>
+  </div>
+  <div class="content" id="votingContent"></div>
+</div>
+
+<!-- ========== SCREEN: MODULE CHALLENGE ========== -->
+<div id="screen-challenge" class="screen">
+  <div class="app-header">
+    <div class="header-top">
+      <button class="header-back" onclick="goBack()">←</button>
+      <div class="header-title">📸 Desafio da Semana</div>
+    </div>
+  </div>
+  <div class="content" id="challengeContent"></div>
+</div>
+
+<!-- ========== SCREEN: MODULE WHO AM I ========== -->
+<div id="screen-whoami" class="screen">
+  <div class="app-header">
+    <div class="header-top">
+      <button class="header-back" onclick="goBack()">←</button>
+      <div class="header-title">🔍 Quem Sou Eu?</div>
+    </div>
+  </div>
+  <div class="content" id="whoamiContent"></div>
+</div>
+
+<!-- ========== SCREEN: MODULE SECRET PAIR ========== -->
+<div id="screen-secretpair" class="screen">
+  <div class="app-header">
+    <div class="header-top">
+      <button class="header-back" onclick="goBack()">←</button>
+      <div class="header-title">🤝 Dupla Secreta</div>
+    </div>
+  </div>
+  <div class="content" id="secretpairContent"></div>
+</div>
+
+<!-- ========== SCREEN: ADMIN DASHBOARD ========== -->
+<div id="screen-admin" class="screen">
+  <div class="app-header">
+    <div class="header-top">
+      <div class="header-title">⚙️ Painel Admin</div>
+      <button class="header-back" onclick="doLogout()" title="Sair">🚪</button>
+    </div>
+  </div>
+  <div class="content">
+    <div class="stat-grid" id="adminStats"></div>
+    <div class="section-title">Módulos</div>
+    <div id="adminModules"></div>
+    <div class="section-title mt-8">Gestão</div>
+    <div id="adminManagement"></div>
+  </div>
+</div>
+
+<!-- ========== SCREEN: ADMIN STUDENTS ========== -->
+<div id="screen-admin-students" class="screen">
+  <div class="app-header">
+    <div class="header-top">
+      <button class="header-back" onclick="showScreen('screen-admin')">←</button>
+      <div class="header-title">👥 Alunos</div>
+      <button class="header-back" onclick="openAddStudentModal()" title="Adicionar">➕</button>
+    </div>
+  </div>
+  <div class="content" id="adminStudentsList">
+    <!-- rendered by JS -->
+  </div>
+</div>
+
+<!-- ========== SCREEN: ADMIN VOTING ========== -->
+<div id="screen-admin-voting" class="screen">
+  <div class="app-header">
+    <div class="header-top">
+      <button class="header-back" onclick="showScreen('screen-admin')">←</button>
+      <div class="header-title">🗳️ Gestão de Votação</div>
+    </div>
+  </div>
+  <div class="content" id="adminVotingContent"></div>
+</div>
+
+<!-- ========== SCREEN: ADMIN CHALLENGE ========== -->
+<div id="screen-admin-challenge" class="screen">
+  <div class="app-header">
+    <div class="header-top">
+      <button class="header-back" onclick="showScreen('screen-admin')">←</button>
+      <div class="header-title">📸 Gestão de Desafio</div>
+    </div>
+  </div>
+  <div class="content" id="adminChallengeContent"></div>
+</div>
+
+<!-- ========== SCREEN: ADMIN WHO AM I ========== -->
+<div id="screen-admin-whoami" class="screen">
+  <div class="app-header">
+    <div class="header-top">
+      <button class="header-back" onclick="showScreen('screen-admin')">←</button>
+      <div class="header-title">🎭 Gestão Quem Sou Eu</div>
+    </div>
+  </div>
+  <div class="content" id="adminWhoamiContent"></div>
+</div>
+
+<!-- ========== SCREEN: ADMIN SECRET PAIR ========== -->
+<div id="screen-admin-secretpair" class="screen">
+  <div class="app-header">
+    <div class="header-top">
+      <button class="header-back" onclick="showScreen('screen-admin')">←</button>
+      <div class="header-title">🤝 Gestão Dupla Secreta</div>
+    </div>
+  </div>
+  <div class="content" id="adminSecretpairContent"></div>
+</div>
+
+<!-- ========== SCREEN: ADMIN RANKING ========== -->
+<div id="screen-admin-ranking" class="screen">
+  <div class="app-header">
+    <div class="header-top">
+      <button class="header-back" onclick="showScreen('screen-admin')">←</button>
+      <div class="header-title">🏆 Ranking Completo</div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchRankingTab(this,'week','admin')">Semana</button>
+      <button class="tab-btn" onclick="switchRankingTab(this,'month','admin')">Mês</button>
+      <button class="tab-btn" onclick="switchRankingTab(this,'total','admin')">Total</button>
+    </div>
+    <div id="adminRankingPodium"></div>
+    <div class="card">
+      <div id="adminRankingList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== MODALS ========== -->
+<!-- Add/Edit Student Modal -->
+<div class="modal-overlay" id="modalStudent">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modalStudentTitle">Novo Aluno</div>
+    <div class="form-group-mb">
+      <label class="label">Nome Completo</label>
+      <input type="text" id="studentName" class="form-input" placeholder="Nome completo...">
+    </div>
+    <div class="form-group-mb">
+      <label class="label">Apelido (username)</label>
+      <input type="text" id="studentUsername" class="form-input" placeholder="apelido..." autocapitalize="none">
+    </div>
+    <div class="form-group-mb">
+      <label class="label">PIN (4 dígitos)</label>
+      <input type="password" id="studentPin" class="form-input" maxlength="4" inputmode="numeric" placeholder="••••">
+    </div>
+    <div class="form-group-mb">
+      <label class="label">Avatar</label>
+      <div class="avatar-options" id="avatarOptions"></div>
+      <div style="margin-top:10px">
+        <div class="upload-area" onclick="document.getElementById('avatarUpload').click()">
+          📷 Clique para fazer upload de foto
+          <input type="file" id="avatarUpload" accept="image/*" style="display:none" onchange="handleAvatarUpload(event)">
+        </div>
+        <div class="img-preview" id="avatarPreview">
+          <img id="avatarPreviewImg">
+        </div>
+      </div>
+    </div>
+    <input type="hidden" id="studentEditId">
+    <div style="display:flex;gap:10px;margin-top:8px">
+      <button class="btn btn-outline btn-sm" style="flex:1" onclick="closeModal('modalStudent')">Cancelar</button>
+      <button class="btn btn-primary btn-sm" style="flex:2" onclick="saveStudent()">Salvar Aluno</button>
+    </div>
+  </div>
+</div>
+
+<!-- Import Excel Modal -->
+<div class="modal-overlay" id="modalImport">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Importar Alunos</div>
+
+    <div style="background:var(--blue-pale);border-radius:10px;padding:14px;margin-bottom:16px;font-size:13px;line-height:1.6">
+      <strong>📋 Formato esperado:</strong><br>
+      Sua planilha deve ter <strong>3 colunas</strong> na ordem:<br>
+      <code style="background:#fff;padding:2px 6px;border-radius:4px;font-size:12px">Nome completo | Apelido | PIN (4 dígitos)</code><br><br>
+      <strong>Exemplos de apelido:</strong> joao, maria23, pedro_s<br>
+      <strong>Exemplo de PIN:</strong> 1234, 5678, 0042<br><br>
+      💡 A primeira linha pode ser cabeçalho — é detectada automaticamente.
+    </div>
+
+    <button class="btn btn-outline mb-16" onclick="downloadSampleCSV()" style="font-size:13px">
+      📥 Baixar modelo de exemplo (.csv)
+    </button>
+
+    <div class="upload-area" onclick="document.getElementById('excelUpload').click()">
+      📊 Clique para selecionar o arquivo
+      <div style="font-size:12px;color:var(--text-muted);margin-top:4px">Aceita: .xlsx, .xls, .csv</div>
+      <input type="file" id="excelUpload" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleExcelImport(event)">
+    </div>
+
+    <div style="margin-top:16px">
+      <button class="btn btn-outline" onclick="closeModal('modalImport')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- New Challenge Modal -->
+<div class="modal-overlay" id="modalChallenge">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Novo Desafio</div>
+    <div class="form-group-mb">
+      <label class="label">Título</label>
+      <input type="text" id="challengeTitle" class="form-input" placeholder="Título do desafio...">
+    </div>
+    <div class="form-group-mb">
+      <label class="label">Descrição</label>
+      <textarea id="challengeDesc" class="form-input form-textarea" placeholder="Descreva o desafio..."></textarea>
+    </div>
+    <div class="form-group-mb">
+      <label class="label">Templates sugeridos</label>
+      <div id="challengeTemplates"></div>
+    </div>
+    <div class="form-group-mb">
+      <label class="label">Prazo de entrega</label>
+      <input type="date" id="challengeDeadline" class="form-input">
+    </div>
+    <div style="display:flex;gap:10px;margin-top:8px">
+      <button class="btn btn-outline btn-sm" style="flex:1" onclick="closeModal('modalChallenge')">Cancelar</button>
+      <button class="btn btn-primary btn-sm" style="flex:2" onclick="saveChallenge()">Criar Desafio</button>
+    </div>
+  </div>
+</div>
+
+<!-- Submit Challenge Modal -->
+<div class="modal-overlay" id="modalSubmitChallenge">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Enviar minha entrega</div>
+    <div class="form-group-mb">
+      <label class="label">Foto obrigatória</label>
+      <div class="upload-area" onclick="document.getElementById('submissionPhoto').click()">
+        📷 Clique para adicionar foto
+        <input type="file" id="submissionPhoto" accept="image/*" style="display:none" onchange="handleSubmissionPhoto(event)">
+      </div>
+      <div class="img-preview" id="submissionPreview">
+        <img id="submissionPreviewImg">
+      </div>
+    </div>
+    <div class="form-group-mb">
+      <label class="label">Legenda (opcional)</label>
+      <textarea id="submissionCaption" class="form-input form-textarea" placeholder="Conta um pouco sobre o seu registro..."></textarea>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:8px">
+      <button class="btn btn-outline btn-sm" style="flex:1" onclick="closeModal('modalSubmitChallenge')">Cancelar</button>
+      <button class="btn btn-primary btn-sm" style="flex:2" onclick="submitChallenge()">Enviar ✨</button>
+    </div>
+  </div>
+</div>
+
+<!-- Who Am I facts modal -->
+<div class="modal-overlay" id="modalWhoAmI">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Cadastre seus fatos!</div>
+    <p class="text-muted mb-16">Escreva 3 fatos <strong>verdadeiros</strong> e 1 fato <strong>falso</strong> sobre você. Não revele qual é o falso!</p>
+    <div id="whoamiFacts">
+      <div class="form-group-mb"><label class="label">Fato 1</label><input class="form-input" type="text" id="fact0" placeholder="Escreva um fato..."></div>
+      <div class="form-group-mb"><label class="label">Fato 2</label><input class="form-input" type="text" id="fact1" placeholder="Escreva um fato..."></div>
+      <div class="form-group-mb"><label class="label">Fato 3</label><input class="form-input" type="text" id="fact2" placeholder="Escreva um fato..."></div>
+      <div class="form-group-mb"><label class="label">Fato 4</label><input class="form-input" type="text" id="fact3" placeholder="Escreva um fato..."></div>
+    </div>
+    <div class="form-group-mb">
+      <label class="label">Qual é o FALSO? (número)</label>
+      <select id="falsoIndex" class="form-input form-select">
+        <option value="0">Fato 1</option>
+        <option value="1">Fato 2</option>
+        <option value="2">Fato 3</option>
+        <option value="3">Fato 4</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:8px">
+      <button class="btn btn-outline btn-sm" style="flex:1" onclick="closeModal('modalWhoAmI')">Cancelar</button>
+      <button class="btn btn-primary btn-sm" style="flex:2" onclick="submitWhoAmIFacts()">Enviar para aprovação</button>
+    </div>
+  </div>
+</div>
+
+<!-- Secret Pair Report Modal -->
+<div class="modal-overlay" id="modalPairReport">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Como foi sua experiência?</div>
+    <p class="text-muted mb-16">Escreva em até 3 linhas como foi cuidar do seu par secreto esta semana.</p>
+    <div class="form-group-mb">
+      <textarea id="pairReportText" class="form-input form-textarea" maxlength="250" placeholder="Conte como foi..."></textarea>
+      <p class="text-small text-muted mt-8">Máx. 250 caracteres</p>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:8px">
+      <button class="btn btn-outline btn-sm" style="flex:1" onclick="closeModal('modalPairReport')">Cancelar</button>
+      <button class="btn btn-primary btn-sm" style="flex:2" onclick="submitPairReport()">Registrar ✨</button>
+    </div>
+  </div>
+</div>
+
+<!-- Comment Modal -->
+<div class="modal-overlay" id="modalComment">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Adicionar comentário</div>
+    <div class="form-group-mb">
+      <textarea id="commentText" class="form-input" style="min-height:80px" placeholder="Escreva seu comentário..."></textarea>
+    </div>
+    <input type="hidden" id="commentPostId">
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-outline btn-sm" style="flex:1" onclick="closeModal('modalComment')">Cancelar</button>
+      <button class="btn btn-primary btn-sm" style="flex:2" onclick="submitComment()">Comentar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Modal (replaces native confirm() blocked in iframes) -->
+<div class="modal-overlay" id="modalConfirm">
+  <div class="modal-sheet" style="max-height:auto">
+    <div class="modal-handle"></div>
+    <div style="text-align:center;padding:8px 0 20px">
+      <div style="font-size:40px;margin-bottom:12px" id="confirmIcon">⚠️</div>
+      <div style="font-size:17px;font-weight:800;margin-bottom:8px" id="confirmTitle">Confirmar ação</div>
+      <div style="font-size:14px;color:var(--text-muted)" id="confirmMessage">Tem certeza?</div>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-outline" style="flex:1" onclick="closeModal('modalConfirm')">Cancelar</button>
+      <button class="btn btn-danger" style="flex:1" id="confirmBtn">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Admin Give Bonus -->
+<div class="modal-overlay" id="modalBonus">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Dar Bônus de Talentos</div>
+    <div class="form-group-mb">
+      <label class="label">Aluno</label>
+      <select id="bonusStudentId" class="form-input form-select"></select>
+    </div>
+    <div class="form-group-mb">
+      <label class="label">Quantidade de Talentos</label>
+      <input type="number" id="bonusAmount" class="form-input" value="5" min="1" max="50">
+    </div>
+    <div class="form-group-mb">
+      <label class="label">Motivo</label>
+      <input type="text" id="bonusReason" class="form-input" placeholder="Ex: Relato especial...">
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-outline btn-sm" style="flex:1" onclick="closeModal('modalBonus')">Cancelar</button>
+      <button class="btn btn-gold btn-sm" style="flex:2" onclick="giveBonus()">Dar Bônus ★</button>
+    </div>
+  </div>
+</div>
+
+<!-- Secret Pair Mission Modal -->
+<div class="modal-overlay" id="modalPairMission">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Missão da Semana</div>
+    <div class="form-group-mb">
+      <label class="label">Missão (ou escolha um template)</label>
+      <textarea id="pairMissionText" class="form-input form-textarea" placeholder="Escreva a missão..."></textarea>
+    </div>
+    <div id="missionTemplates"></div>
+    <div style="display:flex;gap:10px;margin-top:12px">
+      <button class="btn btn-outline btn-sm" style="flex:1" onclick="closeModal('modalPairMission')">Cancelar</button>
+      <button class="btn btn-primary btn-sm" style="flex:2" onclick="savePairMission()">Salvar Missão</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// 📦 DATA MANAGEMENT
+// ============================================================
+const DB_KEY = 'ebd_conecta_v1';
+
+const AVATARS = ['😊','🤩','😎','🥳','🤗','😇','🌟','🦁','🐯','🦊','🐼','🐸','🦋','🌸','⚡'];
+
+const BADGES_DEF = [
+  { id: 'first_delivery', icon: '🌟', name: 'Primeira Entrega', desc: 'Enviou o 1º desafio' },
+  { id: 'sharp_eye_3', icon: '🎯', name: 'Mira Certeira', desc: 'Acertou 3 Quem Sou Eu seguidos' },
+  { id: 'top1_month', icon: '👑', name: 'Top 1 do Mês', desc: 'Ficou em 1º no ranking mensal' },
+  { id: 'streak_4', icon: '🔥', name: 'Em Chamas', desc: 'Participou 4 semanas seguidas' },
+  { id: 'open_heart', icon: '🤗', name: 'Coração Aberto', desc: 'Comentou em 10 posts de colegas' },
+  { id: 'legendary', icon: '✨', name: 'Protagonista Lendário', desc: '80%+ erraram seu fato falso' }
+];
+
+const CHALLENGE_TEMPLATES = [
+  'Faça um ato de bondade anônimo e registre sem mostrar o rosto',
+  'Ensine algo que aprendeu hoje para alguém da sua família',
+  'Encontre uma cena na sua semana que te lembrou o tema de hoje',
+  'Registre um momento de gratidão desta semana'
+];
+
+const PAIR_MISSIONS = [
+  'Manda uma mensagem de incentivo para essa pessoa',
+  'Ore por ela durante 3 dias esta semana',
+  'Descubra algo novo sobre essa pessoa essa semana',
+  'Escreva algo que você admira nessa pessoa'
+];
+
+function getDB() {
+  try {
+    const raw = localStorage.getItem(DB_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch(e) { return null; }
+}
+
+function saveDB(db) {
+  try {
+    localStorage.setItem(DB_KEY, JSON.stringify(db));
+  } catch(e) {
+    showToast('Erro ao salvar dados. Armazenamento cheio?', 'error');
+  }
+}
+
+function initDB() {
+  const existing = getDB();
+  if (existing) return existing;
+  const db = {
+    users: [
+      {
+        id: 'admin',
+        username: 'professor',
+        pin: '1234',
+        role: 'admin',
+        name: 'Professor',
+        avatar: '👨‍🏫',
+        talents: 0,
+        weeklyTalents: 0,
+        monthlyTalents: 0,
+        totalTalents: 0,
+        history: [],
+        badges: [],
+        whoamiCorrectStreak: 0,
+        whoamiCorrectTotal: 0,
+        commentCount: 0,
+        weekPresenceStreak: 0
+      }
+    ],
+    voting: { active: false, votes: [], showResults: false, sessionId: null },
+    challenge: { active: false, title: '', description: '', deadline: '', submissions: [] },
+    whoami: { queue: [], current: null, votes: [], revealed: false, pendingFacts: null },
+    secretpair: { active: false, pairs: [], mission: '', reports: [], revealed: false, drawDate: null },
+    weekStart: getWeekStart(),
+    monthKey: getMonthKey(),
+    lastRankingReset: null
+  };
+  saveDB(db);
+  return db;
+}
+
+function getWeekStart() {
+  const d = new Date();
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  const mon = new Date(d.setDate(diff));
+  return mon.toISOString().split('T')[0];
+}
+
+function getMonthKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+}
+
+// ============================================================
+// 🔐 AUTH
+// ============================================================
+let currentUser = null;
+let screenHistory = [];
+let currentRankingMode = 'week';
+
+function doLogin() {
+  const username = document.getElementById('loginUsername').value.trim().toLowerCase();
+  const pin = document.getElementById('loginPin').value.trim();
+  if (!username || !pin) { showToast('Preencha usuário e PIN', 'error'); return; }
+  const db = initDB();
+  const user = db.users.find(u => u.username.toLowerCase() === username && u.pin === pin);
+  if (!user) { showToast('Usuário ou PIN inválido', 'error'); return; }
+  currentUser = user;
+  checkWeeklyReset(db);
+  if (user.role === 'admin') {
+    renderAdminDashboard();
+    showScreen('screen-admin');
+  } else {
+    renderHome();
+    showScreen('screen-home');
+    // Show confetti + toast for any badges earned since last login
+    const freshUser = initDB().users.find(u => u.id === user.id);
+    if (freshUser && freshUser.pendingBadges && freshUser.pendingBadges.length > 0) {
+      setTimeout(() => {
+        confetti();
+        freshUser.pendingBadges.forEach(bid => {
+          const badge = BADGES_DEF.find(b => b.id === bid);
+          if (badge) showToast(`🏅 Nova conquista: ${badge.name}!`, 'gold');
+        });
+        // Clear pending
+        const db2 = initDB();
+        const u2 = db2.users.find(u => u.id === user.id);
+        if (u2) { u2.pendingBadges = []; saveDB(db2); }
+      }, 800);
+    }
+  }
+  document.getElementById('loginPin').value = '';
+}
+
+function doLogout() {
+  currentUser = null;
+  screenHistory = [];
+  document.getElementById('loginUsername').value = '';
+  document.getElementById('loginPin').value = '';
+  showScreen('screen-login');
+  showToast('Até logo! 👋');
+}
+
+function checkWeeklyReset(db) {
+  const currentWeekStart = getWeekStart();
+  const currentMonth = getMonthKey();
+  if (db.weekStart !== currentWeekStart) {
+    // Reset weekly talents
+    db.users.forEach(u => { u.weeklyTalents = 0; });
+    db.weekStart = currentWeekStart;
+    saveDB(db);
+  }
+  if (db.monthKey !== currentMonth) {
+    // Reset monthly talents for ranking
+    db.users.forEach(u => { u.monthlyTalents = 0; });
+    db.monthKey = currentMonth;
+    saveDB(db);
+  }
+}
+
+// ============================================================
+// 🧭 NAVIGATION
+// ============================================================
+function showScreen(id, pushHistory = true) {
+  if (pushHistory && id !== 'screen-login') {
+    const current = document.querySelector('.screen.active');
+    if (current && current.id !== id) screenHistory.push(current.id);
+  }
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function goBack() {
+  const prev = screenHistory.pop();
+  if (prev) showScreen(prev, false);
+  else if (currentUser) {
+    if (currentUser.role === 'admin') showScreen('screen-admin', false);
+    else showScreen('screen-home', false);
+  }
+}
+
+function showStudentScreen(name) {
+  switch(name) {
+    case 'home': renderHome(); showScreen('screen-home', false); break;
+    case 'ranking': renderRanking(); showScreen('screen-ranking', false); break;
+    case 'profile': renderProfile(); showScreen('screen-profile', false); break;
+  }
+}
+
+// ============================================================
+// 🎨 RENDERING HELPERS
+// ============================================================
+function getAvatarHTML(user, size = 40) {
+  if (!user) return `<div class="rank-avatar" style="width:${size}px;height:${size}px">❓</div>`;
+  const isEmoji = user.avatar && user.avatar.length <= 4 && !user.avatar.startsWith('data:');
+  if (isEmoji || (!user.avatar)) {
+    return `<div class="rank-avatar" style="width:${size}px;height:${size}px;font-size:${size*0.45}px">${user.avatar || '😊'}</div>`;
+  }
+  return `<div class="rank-avatar" style="width:${size}px;height:${size}px"><img src="${user.avatar}" alt=""></div>`;
+}
+
+function getAvatarForHero(user) {
+  const isEmoji = user.avatar && user.avatar.length <= 4 && !user.avatar.startsWith('data:');
+  if (isEmoji || !user.avatar) {
+    return `<div class="avatar" style="font-size:26px">${user.avatar || '😊'}</div>`;
+  }
+  return `<div class="avatar"><img src="${user.avatar}" alt=""></div>`;
+}
+
+function formatDate(d) {
+  if (!d) return '';
+  return new Date(d).toLocaleDateString('pt-BR');
+}
+
+function timeAgo(ts) {
+  if (!ts) return '';
+  const diff = Date.now() - new Date(ts).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return 'agora mesmo';
+  if (m < 60) return `${m}min atrás`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h atrás`;
+  return `${Math.floor(h/24)}d atrás`;
+}
+
+// ============================================================
+// 🏠 HOME
+// ============================================================
+function renderHome() {
+  const db = initDB();
+  const user = db.users.find(u => u.id === currentUser.id);
+  if (!user) return;
+  currentUser = user;
+
+  // Hero
+  document.getElementById('homeAvatar').innerHTML = '';
+  const heroAvatar = document.getElementById('homeAvatar');
+  const isEmoji = user.avatar && user.avatar.length <= 4 && !user.avatar.startsWith('data:');
+  if (isEmoji || !user.avatar) {
+    heroAvatar.style.fontSize = '26px';
+    heroAvatar.textContent = user.avatar || '😊';
+  } else {
+    heroAvatar.innerHTML = `<img src="${user.avatar}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+  }
+  document.getElementById('homeName').textContent = user.name.split(' ')[0];
+  document.getElementById('homeTalents').textContent = user.weeklyTalents || 0;
+  document.getElementById('homeTalentsMonth').textContent = user.monthlyTalents || 0;
+
+  // Quick ranking
+  const students = db.users.filter(u => u.role !== 'admin').sort((a,b) => (b.weeklyTalents||0)-(a.weeklyTalents||0));
+  const top3 = students.slice(0,3);
+  const medals = ['🥇','🥈','🥉'];
+  document.getElementById('homeRankingQuick').innerHTML = top3.length === 0
+    ? '<p class="text-muted text-small">Nenhum aluno ainda</p>'
+    : top3.map((s,i) => `
+      <div class="rank-list-item">
+        <span class="rank-num">${medals[i]}</span>
+        ${getAvatarHTML(s, 36)}
+        <span class="rank-name">${s.name.split(' ')[0]}</span>
+        <span class="rank-pts">T$ ${s.weeklyTalents||0}</span>
+      </div>`).join('');
+
+  // Activities
+  const acts = [];
+  if (db.voting.active) {
+    const hasVoted = db.voting.votes.some(v => v.voterId === currentUser.id && v.sessionId === db.voting.sessionId);
+    acts.push({ id: 'voting', icon: '🗳️', title: 'Destaque da Aula', desc: hasVoted ? 'Você já votou nesta sessão!' : 'Vote nos destaques da sua turma', color: 'blue', badge: hasVoted ? '✅ Votado' : '🔥 Aberto', inactive: hasVoted });
+  }
+  if (db.challenge.active) {
+    const hasSent = db.challenge.submissions.some(s => s.userId === currentUser.id);
+    acts.push({ id: 'challenge', icon: '📸', title: db.challenge.title || 'Desafio da Semana', desc: `Prazo: ${formatDate(db.challenge.deadline)}`, color: 'gold', badge: hasSent ? '✅ Enviado' : '🔥 Aberto', inactive: false });
+  }
+  // Who Am I — sempre aparece na home com estado correto
+  const wai = db.whoami;
+  const myQueuePos = (wai.queue || []).indexOf(currentUser.id);
+  const myRequest = (wai.requests || []).includes(currentUser.id);
+  const isProtagonist = wai.current && wai.current.userId === currentUser.id;
+  const hasVotedWai = wai.votes.some(v => v.userId === currentUser.id);
+
+  if (isProtagonist && !wai.current.approved) {
+    acts.push({ id: 'whoami', icon: '🔍', title: 'Quem Sou Eu?', desc: 'Seus fatos estão aguardando aprovação...', color: 'purple', badge: '⏳ Aguardando' });
+  } else if (!wai.current && wai.queue && wai.queue[0] === currentUser.id) {
+    acts.push({ id: 'whoami', icon: '🔍', title: 'Quem Sou Eu?', desc: 'É a sua vez! Cadastre seus fatos.', color: 'purple', badge: '⭐ Sua vez!' });
+  } else if (wai.current && wai.current.approved && !wai.revealed && !isProtagonist) {
+    const badge = hasVotedWai ? '✅ Votado' : '🎯 Vote agora!';
+    const desc = hasVotedWai
+      ? (myQueuePos >= 0 ? `Na fila: ${myQueuePos + 1}º lugar` : myRequest ? 'Solicitação enviada' : 'Clique para se inscrever como próxima!')
+      : 'Adivinhe o fato falso!';
+    acts.push({ id: 'whoami', icon: '🔍', title: 'Quem Sou Eu?', desc, color: 'purple', badge });
+  } else if (wai.revealed) {
+    const desc = myQueuePos >= 0 ? `Na fila: ${myQueuePos + 1}º lugar` : myRequest ? 'Solicitação enviada' : 'Ver resultado · Se inscreva!';
+    acts.push({ id: 'whoami', icon: '🔍', title: 'Quem Sou Eu?', desc, color: 'purple', badge: '🎉 Revelado' });
+  } else {
+    // No active round
+    const desc = myQueuePos >= 0 ? `Na fila: ${myQueuePos + 1}º lugar` : myRequest ? 'Solicitação enviada ao professor' : 'Clique para se inscrever como protagonista!';
+    const badge = myQueuePos >= 0 ? `${myQueuePos + 1}º na fila` : myRequest ? '⏳ Aguardando' : '🙋 Inscreva-se';
+    acts.push({ id: 'whoami', icon: '🔍', title: 'Quem Sou Eu?', desc, color: 'purple', badge });
+  }
+  // Secret pair
+  const sp = db.secretpair;
+  if (sp.active) {
+    const myPair = sp.pairs.find(p => p.userId === currentUser.id);
+    if (myPair) {
+      const hasReport = sp.reports.some(r => r.userId === currentUser.id);
+      acts.push({ id: 'secretpair', icon: '🤝', title: 'Dupla Secreta', desc: hasReport ? 'Relato enviado!' : 'Veja sua dupla e registre o relato', color: 'teal', badge: hasReport ? '✅ Feito' : '🤝 Ativo' });
+    }
+  }
+
+  if (acts.length === 0) {
+    document.getElementById('homeActivities').innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">😴</div>
+        <p>Nenhuma atividade no momento.<br>Aguarde seu professor abrir uma!</p>
+      </div>`;
+  } else {
+    document.getElementById('homeActivities').innerHTML = acts.map(a => `
+      <div class="module-card ${a.color}${a.inactive?' inactive':''}" onclick="${a.inactive?'':openModule(a.id)}">
+        <div class="module-icon">${a.icon}</div>
+        <div class="module-title">${a.title}</div>
+        <div class="module-desc">${a.desc}</div>
+        ${a.badge ? `<div class="module-badge">${a.badge}</div>` : ''}
+      </div>`).join('');
+    // Fix onclick (it was stringified)
+    acts.forEach((a, i) => {
+      if (!a.inactive) {
+        document.querySelectorAll('.module-card')[i].onclick = () => openModule(a.id);
+      }
+    });
+  }
+}
+
+function openModule(id) {
+  switch(id) {
+    case 'voting': renderVoting(); showScreen('screen-voting'); break;
+    case 'challenge': renderChallenge(); showScreen('screen-challenge'); break;
+    case 'whoami': renderWhoAmI(); showScreen('screen-whoami'); break;
+    case 'secretpair': renderSecretPair(); showScreen('screen-secretpair'); break;
+  }
+}
+
+// ============================================================
+// 🏆 RANKING
+// ============================================================
+function renderRanking(context = 'student') {
+  const prefix = context === 'admin' ? 'admin' : '';
+  const podiumId = context === 'admin' ? 'adminRankingPodium' : 'rankingPodium';
+  const listId = context === 'admin' ? 'adminRankingList' : 'rankingList';
+  renderRankingContent(currentRankingMode, podiumId, listId);
+}
+
+function switchRankingTab(btn, mode, context) {
+  currentRankingMode = mode;
+  const bar = btn.closest('.tab-bar');
+  bar.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  if (context === 'admin') {
+    renderRankingContent(mode, 'adminRankingPodium', 'adminRankingList');
+  } else {
+    renderRankingContent(mode, 'rankingPodium', 'rankingList');
+  }
+}
+
+function renderRankingContent(mode, podiumId, listId) {
+  const db = initDB();
+  const students = db.users.filter(u => u.role !== 'admin');
+  let field = mode === 'week' ? 'weeklyTalents' : mode === 'month' ? 'monthlyTalents' : 'totalTalents';
+  const sorted = [...students].sort((a,b) => (b[field]||0) - (a[field]||0));
+  const top3 = sorted.slice(0,3);
+  const medals = ['🥇','🥈','🥉'];
+  const barHeights = ['first','second','third'];
+
+  // Podium
+  const podiumEl = document.getElementById(podiumId);
+  if (!podiumEl) return;
+  if (top3.length === 0) {
+    podiumEl.innerHTML = '<div class="empty-state"><div class="empty-icon">🏆</div><p>Nenhum aluno ainda</p></div>';
+    return;
+  }
+  // Reorder for podium display: 2nd, 1st, 3rd
+  const podiumOrder = top3.length >= 3 ? [top3[1],top3[0],top3[2]] : top3.length === 2 ? [top3[1],top3[0]] : [top3[0]];
+  const podiumMedals = top3.length >= 3 ? ['🥈','🥇','🥉'] : top3.length === 2 ? ['🥈','🥇'] : ['🥇'];
+  const podiumBarH = top3.length >= 3 ? ['second','first','third'] : top3.length === 2 ? ['second','first'] : ['first'];
+
+  podiumEl.innerHTML = `
+    <div class="ranking-podium">
+      ${podiumOrder.map((s,i) => {
+        const av = (s.avatar && s.avatar.length <= 4 && !s.avatar.startsWith('data:')) || !s.avatar
+          ? `<div class="podium-avatar" style="${i===1?'width:64px;height:64px;':'width:52px;height:52px;'}font-size:${i===1?'28':'22'}px">${s.avatar||'😊'}</div>`
+          : `<div class="podium-avatar" style="${i===1?'width:64px;height:64px;':'width:52px;height:52px;'}"><img src="${s.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"></div>`;
+        return `
+        <div class="podium-item" style="order:${i}">
+          <span class="podium-medal">${podiumMedals[i]}</span>
+          ${av}
+          <span class="podium-name">${s.name.split(' ')[0]}</span>
+          <span class="podium-pts">T$ ${s[field]||0}</span>
+          <div class="podium-bar ${podiumBarH[i]}"></div>
+        </div>`;
+      }).join('')}
+    </div>`;
+
+  // Full list
+  document.getElementById(listId).innerHTML = sorted.map((s,i) => `
+    <div class="rank-list-item">
+      <span class="rank-num">${i===0?'🥇':i===1?'🥈':i===2?'🥉':`#${i+1}`}</span>
+      ${getAvatarHTML(s, 38)}
+      <span class="rank-name">${s.name}</span>
+      <span class="rank-pts">T$ ${s[field]||0}</span>
+    </div>`).join('');
+}
+
+// ============================================================
+// 👤 PROFILE
+// ============================================================
+function renderProfile() {
+  const db = initDB();
+  const user = db.users.find(u => u.id === currentUser.id);
+  if (!user) return;
+  const badges = BADGES_DEF.map(b => ({
+    ...b, unlocked: (user.badges || []).includes(b.id)
+  }));
+  const history = (user.history || []).slice(-20).reverse();
+  const avEl = (user.avatar && user.avatar.length <= 4 && !user.avatar.startsWith('data:')) || !user.avatar
+    ? `<div class="profile-avatar" style="font-size:36px">${user.avatar||'😊'}</div>`
+    : `<div class="profile-avatar"><img src="${user.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"></div>`;
+
+  document.getElementById('profileContent').innerHTML = `
+    <div class="profile-header">
+      ${avEl}
+      <div style="font-size:22px;font-weight:800;margin-bottom:4px">${user.name}</div>
+      <div style="opacity:.7;font-size:13px">@${user.username}</div>
+      <div style="display:flex;gap:20px;justify-content:center;margin-top:16px">
+        <div style="text-align:center">
+          <div style="font-size:24px;font-weight:900">${user.weeklyTalents||0}</div>
+          <div style="font-size:11px;opacity:.7">Esta semana</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:24px;font-weight:900">${user.monthlyTalents||0}</div>
+          <div style="font-size:11px;opacity:.7">Este mês</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:24px;font-weight:900">${user.totalTalents||0}</div>
+          <div style="font-size:11px;opacity:.7">Total</div>
+        </div>
+      </div>
+    </div>
+    <div class="content" style="padding-top:0">
+      <div class="section-title">🏅 Conquistas</div>
+      <div class="badges-grid">
+        ${badges.map(b => `
+          <div class="badge-item ${b.unlocked?'unlocked':''}">
+            <div class="badge-icon">${b.icon}</div>
+            <div class="badge-name">${b.name}</div>
+          </div>`).join('')}
+      </div>
+      <div class="section-title mt-16">📜 Histórico de Talentos</div>
+      <div class="card" style="padding:0 18px">
+        ${history.length === 0 ? '<p class="text-muted text-small" style="padding:16px 0">Nenhum talento ainda</p>' :
+          history.map(h => `
+            <div class="history-item">
+              <div class="history-icon">${h.icon||'🪙'}</div>
+              <div class="history-desc">${h.desc}</div>
+              <div class="history-pts">+${h.pts}</div>
+            </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+// ============================================================
+// 🗳️ MODULE 1: VOTING
+// ============================================================
+function renderVoting() {
+  const db = initDB();
+  const voting = db.voting;
+  const el = document.getElementById('votingContent');
+
+  if (!voting.active) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">🗳️</div><p>A votação está fechada no momento.<br>Aguarde o professor abrir!</p></div>`;
+    return;
+  }
+
+  const hasVoted = voting.votes.some(v => v.voterId === currentUser.id && v.sessionId === voting.sessionId);
+  if (hasVoted) {
+    if (voting.showResults) {
+      renderVotingResults(el, db);
+    } else {
+      el.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">✅</div>
+          <p style="font-size:18px;font-weight:800;color:var(--blue)">Voto registrado!</p>
+          <p style="margin-top:8px">Aguarde o professor encerrar a votação para ver os resultados.</p>
+          <p class="text-muted mt-8">+2 Talentos adicionados</p>
+        </div>`;
+    }
+    return;
+  }
+
+  // Build vote UI
+  const students = db.users.filter(u => u.role !== 'admin' && u.id !== currentUser.id);
+  const categories = [
+    { id: 'helped', label: '🤝 Ajudou alguém' },
+    { id: 'creative', label: '💡 Ideia criativa' },
+    { id: 'empathy', label: '❤️ Demonstrou empatia' }
+  ];
+
+  el.innerHTML = `
+    <div class="card">
+      <p style="font-size:14px;color:var(--text-muted);margin-bottom:16px">Selecione até <strong>3 colegas</strong> e escolha uma categoria para cada.</p>
+      <div id="voteList">
+        ${students.map(s => `
+          <div class="voter-list-item" id="vote_${s.id}" onclick="toggleVoteStudent('${s.id}')">
+            ${getAvatarHTML(s, 38)}
+            <span class="voter-name">${s.name}</span>
+            <span class="voter-check" id="check_${s.id}">✓</span>
+          </div>
+          <div class="category-chips" id="cats_${s.id}" style="display:none">
+            ${categories.map(c => `<div class="chip" id="cat_${s.id}_${c.id}" onclick="selectCategory(event,'${s.id}','${c.id}')">${c.label}</div>`).join('')}
+          </div>`).join('')}
+      </div>
+      <div id="voteCount" style="text-align:center;margin:16px 0;font-size:13px;color:var(--text-muted)">0/3 selecionados</div>
+      <button class="btn btn-primary" onclick="submitVote()">Confirmar Votos 🗳️</button>
+    </div>`;
+}
+
+let selectedVotes = {}; // { studentId: categoryId }
+
+function toggleVoteStudent(sid) {
+  const count = Object.keys(selectedVotes).length;
+  if (selectedVotes[sid]) {
+    delete selectedVotes[sid];
+    document.getElementById(`vote_${sid}`).classList.remove('selected');
+    document.getElementById(`cats_${sid}`).style.display = 'none';
+  } else {
+    if (count >= 3) { showToast('Máximo de 3 votos!', 'error'); return; }
+    selectedVotes[sid] = null;
+    document.getElementById(`vote_${sid}`).classList.add('selected');
+    document.getElementById(`cats_${sid}`).style.display = 'flex';
+  }
+  document.getElementById('voteCount').textContent = `${Object.keys(selectedVotes).length}/3 selecionados`;
+}
+
+function selectCategory(e, sid, catId) {
+  e.stopPropagation();
+  selectedVotes[sid] = catId;
+  document.querySelectorAll(`#cats_${sid} .chip`).forEach(c => c.classList.remove('selected'));
+  document.getElementById(`cat_${sid}_${catId}`).classList.add('selected');
+}
+
+function submitVote() {
+  const db = initDB();
+  if (Object.keys(selectedVotes).length === 0) { showToast('Selecione ao menos 1 colega', 'error'); return; }
+  for (const [sid, cat] of Object.entries(selectedVotes)) {
+    if (!cat) { showToast('Escolha uma categoria para cada selecionado', 'error'); return; }
+  }
+  // Save votes
+  for (const [sid, cat] of Object.entries(selectedVotes)) {
+    db.voting.votes.push({ voterId: currentUser.id, targetId: sid, category: cat, sessionId: db.voting.sessionId });
+    // Give talentos to voted
+    const target = db.users.find(u => u.id === sid);
+    if (target) awardTalents(db, target, 5, '🗳️', 'Recebeu voto no Destaque');
+  }
+  // Give talentos to voter
+  const voter = db.users.find(u => u.id === currentUser.id);
+  if (voter) awardTalents(db, voter, 2, '🗳️', 'Participou da votação');
+  saveDB(db);
+  const qtd = Object.keys(selectedVotes).length;
+  selectedVotes = {};
+  showToast(`${qtd} voto${qtd>1?'s':''} registrado${qtd>1?'s':''}! +2 Talentos 🗳️`, 'success');
+  renderVoting();
+}
+
+function renderVotingResults(el, db) {
+  const votes = db.voting.votes.filter(v => v.sessionId === db.voting.sessionId);
+  const categories = { helped: '🤝 Ajudou alguém', creative: '💡 Ideia criativa', empathy: '❤️ Demonstrou empatia' };
+  // Count per student
+  const counts = {};
+  votes.forEach(v => {
+    if (!counts[v.targetId]) counts[v.targetId] = { total: 0, cats: {} };
+    counts[v.targetId].total++;
+    counts[v.targetId].cats[v.category] = (counts[v.targetId].cats[v.category]||0)+1;
+  });
+  const students = db.users.filter(u => u.role !== 'admin');
+  const ranked = students.filter(s => counts[s.id]).sort((a,b) => counts[b.id].total - counts[a.id].total);
+  const maxVotes = ranked.length > 0 ? counts[ranked[0].id].total : 1;
+
+  el.innerHTML = `
+    <div class="card">
+      <div class="section-title">🏆 Resultado da Votação</div>
+      ${ranked.length === 0 ? '<p class="text-muted">Nenhum voto ainda</p>' :
+        ranked.map((s,i) => `
+          <div class="result-item">
+            <div class="result-item-header">
+              <span>${i===0?'🥇':i===1?'🥈':i===2?'🥉':'•'} ${s.name}</span>
+              <span class="font-bold">${counts[s.id].total} voto${counts[s.id].total>1?'s':''}</span>
+            </div>
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">
+              ${Object.entries(counts[s.id].cats).map(([cat,n]) => `${categories[cat]||cat}: ${n}`).join(' · ')}
+            </div>
+            <div class="result-bar"><div class="result-bar-fill" style="width:${Math.round(counts[s.id].total/maxVotes*100)}%"></div></div>
+          </div>`).join('')}
+    </div>
+    <p class="text-muted text-small text-center">Total de votos: ${votes.length}</p>`;
+}
+
+// ============================================================
+// 📸 MODULE 2: CHALLENGE
+// ============================================================
+function renderChallenge() {
+  const db = initDB();
+  const ch = db.challenge;
+  const el = document.getElementById('challengeContent');
+  if (!ch.active) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">📸</div><p>Nenhum desafio ativo no momento.</p></div>`;
+    return;
+  }
+  const hasSent = ch.submissions.some(s => s.userId === currentUser.id);
+  const mySubmission = ch.submissions.find(s => s.userId === currentUser.id);
+
+  el.innerHTML = `
+    <div class="card" style="background:linear-gradient(135deg,#92400e,#f59e0b);color:#fff;margin-bottom:12px">
+      <div style="font-size:13px;opacity:.8;font-weight:600;margin-bottom:6px">DESAFIO DA SEMANA</div>
+      <div style="font-size:18px;font-weight:800;margin-bottom:8px;line-height:1.3;word-break:break-word">${ch.title}</div>
+      <div style="font-size:14px;opacity:.9;margin-bottom:12px;line-height:1.5">${ch.description}</div>
+      ${ch.deadline ? `<div style="font-size:13px;opacity:.85;font-weight:600">⏰ Prazo: ${formatDate(ch.deadline)}</div>` : ''}
+    </div>
+    ${hasSent
+      ? `<div class="card" style="text-align:center;padding:20px">
+          <div style="font-size:32px;margin-bottom:8px">✅</div>
+          <div style="font-size:16px;font-weight:800;color:var(--blue)">Entrega enviada!</div>
+          <p class="text-muted text-small mt-8">Você pode ver e curtir as entregas dos colegas abaixo</p>
+         </div>`
+      : `<button class="btn btn-gold" style="margin-bottom:16px" onclick="document.getElementById('modalSubmitChallenge').classList.add('active')">
+          📤 Enviar minha entrega (+10 Talentos)
+         </button>`
+    }
+    ${(function() {
+      var visibleSubs = ch.submissions.filter(function(s) { return s.approved || (s.userId === currentUser.id && !s.rejected) || (s.rejected && s.userId === currentUser.id); });
+      var pendingCount = ch.submissions.filter(function(s) { return !s.approved && s.userId !== currentUser.id; }).length;
+      var pendingNote = pendingCount > 0 ? '<p class="text-muted text-small" style="margin:-8px 0 12px;padding:0 4px">⏳ ' + pendingCount + ' entrega' + (pendingCount>1?'s':'') + ' aguardando aprovação do professor</p>' : '';
+      var body = visibleSubs.length === 0
+        ? '<div class="empty-state"><div class="empty-icon">📭</div><p>Nenhuma entrega aprovada ainda.</p></div>'
+        : '<div class="photo-grid">' + visibleSubs.map(function(s) { return renderFeedPostGrid(s, db); }).join('') + '</div>';
+      return '<div class="section-title">📋 Mural da Turma (' + visibleSubs.length + ')</div>' + pendingNote + body;
+    })()}`;
+}
+
+function renderFeedPostGrid(sub, db) {
+  var author = db.users.find(function(u) { return u.id === sub.userId; });
+  var isOwn = sub.userId === currentUser.id;
+  var hasLiked = (sub.likes || []).includes(currentUser.id);
+  var firstName = author ? author.name.split(' ')[0] : 'Aluno';
+  var isPending = !sub.approved && !sub.rejected && isOwn;
+  var isRejected = sub.rejected && isOwn;
+  var sid = sub.id;
+
+  if (isRejected) {
+    var adminUser = db.users.find(function(u) { return u.role === 'admin'; });
+    var adminName = (adminUser && adminUser.name) ? adminUser.name : 'seu professor';
+    return '<div class="photo-grid-item" style="border:2px solid #ef4444;background:#fff5f5;grid-column:span 3">' +
+      '<div style="padding:14px;text-align:center">' +
+        '<div style="font-size:24px;margin-bottom:6px">\u274c</div>' +
+        '<div style="font-size:12px;font-weight:700;color:#ef4444;margin-bottom:4px">Entrega n\u00e3o aprovada</div>' +
+        '<div style="font-size:11px;color:#64748b;line-height:1.5">Converse com ' + adminName + ' para maiores informa\u00e7\u00f5es sobre seu mural.</div>' +
+      '</div></div>';
+  }
+
+  var likeIcon = hasLiked ? '\u2764\ufe0f' : '\ud83e\udd0d';
+  var likeCount = (sub.likes||[]).length;
+  var thumb = sub.photo
+    ? '<img class="photo-grid-thumb" src="' + sub.photo + '" loading="lazy" onclick="openLightbox(\\"' + sid + '\\")">'
+    : '<div class="photo-grid-thumb" style="background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:28px">\ud83d\udcf7</div>';
+  var likeBtn = '<button class="post-action-btn ' + (hasLiked?'liked':'') + '" style="padding:0;background:none;border:none;font-size:12px;cursor:pointer" onclick="toggleLike(\\"' + sid + '\\")">' + likeIcon + ' ' + likeCount + '</button>';
+  var delBtn = isOwn ? '<button style="background:none;border:none;cursor:pointer;font-size:12px;color:#ef4444" onclick="deletePost(\\"' + sid + '\\")">\ud83d\uddd1\ufe0f</button>' : '';
+
+  return '<div class="photo-grid-item' + (isPending ? ' pending-approval' : '') + '" style="' + (isPending ? 'opacity:.75;border:2px dashed #f59e0b' : '') + '">' +
+    thumb +
+    '<div class="photo-grid-footer">' +
+      '<span class="photo-grid-author">' + firstName + (isPending ? ' \u23f3' : '') + '</span>' +
+      likeBtn + delBtn +
+    '</div></div>';
+}
+
+function openLightbox(postId) {
+  const db = initDB();
+  const sub = db.challenge.submissions.find(s => s.id === postId);
+  if (!sub || !sub.photo) return;
+  const author = db.users.find(u => u.id === sub.userId);
+  const hasLiked = (sub.likes || []).includes(currentUser.id);
+
+  const existing = document.getElementById('lightbox');
+  if (existing) existing.remove();
+
+  const lb = document.createElement('div');
+  lb.className = 'lightbox';
+  lb.id = 'lightbox';
+  lb.innerHTML = `
+    <div class="lightbox-img" onclick="document.getElementById('lightbox').remove()">
+      <img src="${sub.photo}" alt="foto">
+    </div>
+    <div class="lightbox-bar">
+      <div style="color:#fff">
+        <div style="font-size:14px;font-weight:700">${author ? author.name : 'Aluno'}</div>
+        ${sub.caption ? `<div style="font-size:12px;opacity:.8;margin-top:2px">${sub.caption}</div>` : ''}
+      </div>
+      <button class="post-action-btn ${hasLiked?'liked':''}" id="lbLikeBtn" style="color:#fff;border-color:rgba(255,255,255,.3)"
+        onclick="toggleLike('${postId}');document.getElementById('lightbox').remove();renderChallenge()">
+        ${hasLiked?'❤️':'🤍'} ${(sub.likes||[]).length}
+      </button>
+      <button class="post-action-btn" style="color:#fff;border-color:rgba(255,255,255,.3)"
+        onclick="document.getElementById('lightbox').remove();openCommentModal('${postId}')">
+        💬 ${(sub.comments||[]).length}
+      </button>
+      <button class="lightbox-close" onclick="document.getElementById('lightbox').remove()">✕</button>
+    </div>`;
+  document.body.appendChild(lb);
+}
+
+function renderFeedPost(sub, db) {
+  const author = db.users.find(u => u.id === sub.userId);
+  const isOwn = sub.userId === currentUser.id;
+  const hasLiked = (sub.likes || []).includes(currentUser.id);
+  const comments = sub.comments || [];
+  const isEmoji = author && author.avatar && author.avatar.length <= 4 && !author.avatar.startsWith('data:');
+  const avEl = !author ? '❓' : isEmoji || !author.avatar
+    ? `<div class="rank-avatar" style="width:38px;height:38px;font-size:18px">${author.avatar||'😊'}</div>`
+    : `<div class="rank-avatar" style="width:38px;height:38px"><img src="${author.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"></div>`;
+
+  return `
+    <div class="feed-post" id="post_${sub.id}">
+      <div class="feed-post-header">
+        ${avEl}
+        <div>
+          <div style="font-size:14px;font-weight:700">${author ? author.name : 'Aluno'}</div>
+          <div class="text-muted text-small">${timeAgo(sub.timestamp)}</div>
+        </div>
+        ${isOwn ? `<button class="icon-btn icon-btn-red" style="margin-left:auto" onclick="deletePost('${sub.id}')">🗑️</button>` : ''}
+      </div>
+      ${sub.photo ? `<div class="feed-post-img"><img src="${sub.photo}" loading="lazy"></div>` : ''}
+      ${sub.caption ? `<div class="feed-post-body"><div class="feed-post-caption">${sub.caption}</div></div>` : ''}
+      <div class="feed-post-actions">
+        <button class="post-action-btn ${hasLiked?'liked':''}" onclick="toggleLike('${sub.id}')">
+          ${hasLiked?'❤️':'🤍'} ${(sub.likes||[]).length}
+        </button>
+        <button class="post-action-btn" onclick="openCommentModal('${sub.id}')">
+          💬 ${comments.length}
+        </button>
+      </div>
+      ${comments.length > 0 ? `
+        <div class="comments-section">
+          ${comments.slice(-3).map(c => {
+            const cu = db.users.find(u => u.id === c.userId);
+            return `<div class="comment-item">
+              <div class="comment-text">
+                <div class="comment-author">${cu ? cu.name.split(' ')[0] : 'Aluno'}</div>
+                ${c.text}
+              </div>
+            </div>`;
+          }).join('')}
+        </div>` : ''}
+    </div>`;
+}
+
+function toggleLike(postId) {
+  const db = initDB();
+  const sub = db.challenge.submissions.find(s => s.id === postId);
+  if (!sub) return;
+  if (!sub.likes) sub.likes = [];
+  const idx = sub.likes.indexOf(currentUser.id);
+  if (idx > -1) {
+    sub.likes.splice(idx, 1);
+  } else {
+    // Limit likes per post to +10 talentos for owner
+    const canEarnMore = (sub.likes.length) < 10;
+    sub.likes.push(currentUser.id);
+    if (canEarnMore) {
+      const postOwner = db.users.find(u => u.id === sub.userId);
+      if (postOwner && postOwner.id !== currentUser.id) awardTalents(db, postOwner, 1, '❤️', 'Curtida recebida');
+    }
+    // Liker gets talent (max 5/week)
+    const liker = db.users.find(u => u.id === currentUser.id);
+    if (liker) {
+      const weekLikes = (liker.history||[]).filter(h => h.type === 'like' && isThisWeek(h.ts));
+      if (weekLikes.length < 5) awardTalents(db, liker, 1, '👍', 'Curtiu um post');
+      else liker.history.push({type:'like',ts:Date.now()});
+    }
+  }
+  saveDB(db);
+  renderChallenge();
+}
+
+function isThisWeek(ts) {
+  const d = new Date(ts);
+  const now = new Date();
+  const weekStart = new Date(now);
+  const day = weekStart.getDay();
+  weekStart.setDate(weekStart.getDate() - day + (day===0?-6:1));
+  weekStart.setHours(0,0,0,0);
+  return d >= weekStart;
+}
+
+function openCommentModal(postId) {
+  document.getElementById('commentPostId').value = postId;
+  document.getElementById('commentText').value = '';
+  document.getElementById('modalComment').classList.add('active');
+}
+
+function submitComment() {
+  const postId = document.getElementById('commentPostId').value;
+  const text = document.getElementById('commentText').value.trim();
+  if (!text) { showToast('Escreva um comentário', 'error'); return; }
+  const db = initDB();
+  const sub = db.challenge.submissions.find(s => s.id === postId);
+  if (!sub) return;
+  if (!sub.comments) sub.comments = [];
+  sub.comments.push({ userId: currentUser.id, text, ts: Date.now() });
+  // Award commenter (max 6 talentos/week)
+  const commenter = db.users.find(u => u.id === currentUser.id);
+  if (commenter) {
+    const weekComments = (commenter.history||[]).filter(h => h.type === 'comment' && isThisWeek(h.ts));
+    if (weekComments.length < 3) awardTalents(db, commenter, 2, '💬', 'Comentou em um post');
+    else commenter.history.push({type:'comment',ts:Date.now()});
+    // Badge check
+    const totalComments = (commenter.history||[]).filter(h => h.type === 'comment').length;
+    if (totalComments >= 10) unlockBadge(db, commenter, 'open_heart');
+  }
+  saveDB(db);
+  closeModal('modalComment');
+  showToast('Comentário adicionado! 💬', 'success');
+  renderChallenge();
+}
+
+function deletePost(postId) {
+  showConfirm('Excluir entrega?', 'Sua entrega será removida do mural.', '🗑️', () => {
+    const db = initDB();
+    db.challenge.submissions = db.challenge.submissions.filter(s => s.id !== postId);
+    saveDB(db);
+    showToast('Entrega removida');
+    renderChallenge();
+  });
+}
+
+let submissionPhotoData = null;
+
+function handleSubmissionPhoto(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  compressImage(file, 500*1024, (data) => {
+    submissionPhotoData = data;
+    const preview = document.getElementById('submissionPreview');
+    const img = document.getElementById('submissionPreviewImg');
+    img.src = data;
+    preview.style.display = 'block';
+  });
+}
+
+function submitChallenge() {
+  if (!submissionPhotoData) { showToast('Adicione uma foto!', 'error'); return; }
+  const caption = document.getElementById('submissionCaption').value.trim();
+  const db = initDB();
+  const hasSent = db.challenge.submissions.some(s => s.userId === currentUser.id);
+  if (hasSent) { showToast('Você já enviou!', 'error'); return; }
+  const id = 'sub_' + Date.now();
+  db.challenge.submissions.push({ id, userId: currentUser.id, photo: submissionPhotoData, caption, timestamp: Date.now(), likes: [], comments: [], approved: false });
+  saveDB(db);
+  submissionPhotoData = null;
+  document.getElementById('submissionPhoto').value = '';
+  document.getElementById('submissionPreview').style.display = 'none';
+  closeModal('modalSubmitChallenge');
+  showToast('Entrega enviada! Aguardando aprovação do professor 📸', 'success');
+  renderChallenge();
+}
+
+// ============================================================
+// 🎭 MODULE 3: WHO AM I
+// ============================================================
+function renderWhoAmI() {
+  const db = initDB();
+  const wai = db.whoami;
+  const el = document.getElementById('whoamiContent');
+
+  // Check if I'm next protagonist (first in queue, no active round)
+  if (!wai.current && wai.queue && wai.queue[0] === currentUser.id) {
+    el.innerHTML = `
+      <div class="card" style="text-align:center;padding:28px">
+        <div style="font-size:48px;margin-bottom:16px">🌟</div>
+        <div style="font-size:18px;font-weight:800;color:var(--blue);margin-bottom:8px">Você é o protagonista!</div>
+        <p class="text-muted" style="margin-bottom:20px">É a sua vez de cadastrar os 4 fatos. Lembre: 3 verdadeiros + 1 falso!</p>
+        <button class="btn btn-primary" onclick="document.getElementById('modalWhoAmI').classList.add('active')">Cadastrar meus fatos ✍️</button>
+        <p class="text-muted text-small mt-8">+5 Talentos ao enviar</p>
+      </div>`;
+    return;
+  }
+
+  // Waiting for approval
+  if (wai.current && wai.current.userId === currentUser.id && !wai.current.approved) {
+    el.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">⏳</div>
+        <p>Seus fatos estão aguardando aprovação do professor!<br>Aguarde...</p>
+      </div>`;
+    return;
+  }
+
+  // I'm in queue but not next — show my position
+  const myQueuePos = wai.queue ? wai.queue.indexOf(currentUser.id) : -1;
+  const alreadyInQueue = myQueuePos >= 0;
+  const alreadyRequested = (wai.requests || []).includes(currentUser.id);
+
+  // No active round
+  if (!wai.current || !wai.current.approved) {
+    const queueSize = (wai.queue || []).length;
+    const nextUp = wai.queue && wai.queue[0] ? db.users.find(u => u.id === wai.queue[0]) : null;
+
+    el.innerHTML = `
+      <div class="card" style="text-align:center;padding:28px">
+        <div style="font-size:48px;margin-bottom:12px">🔍</div>
+        <div style="font-size:17px;font-weight:800;color:var(--blue);margin-bottom:8px">Nenhuma rodada ativa</div>
+        <p class="text-muted" style="margin-bottom:20px;font-size:14px">
+          ${nextUp ? `Próximo: <strong>${nextUp.name.split(' ')[0]}</strong> está preparando os fatos!` : 'Aguarde o professor iniciar uma rodada.'}
+        </p>
+
+        ${alreadyInQueue
+          ? `<div class="pill pill-blue" style="margin:0 auto 12px;font-size:13px">
+               🎯 Você está na fila — posição ${myQueuePos + 1}º de ${queueSize}
+             </div>
+             <button class="btn btn-outline btn-sm mt-8" onclick="leaveWhoAmIQueue()">Sair da fila</button>`
+          : alreadyRequested
+            ? `<div class="pill pill-gold" style="margin:0 auto 12px">⏳ Solicitação enviada ao professor</div>`
+            : `<button class="btn btn-primary" onclick="requestWhoAmIQueue()">
+                 🙋 Quero ser protagonista!
+               </button>
+               <p class="text-muted text-small mt-8">Sua solicitação vai para o professor aprovar</p>`
+        }
+      </div>
+      ${queueSize > 0 ? `
+        <div class="card">
+          <div class="card-title">📋 FILA DE ESPERA (${queueSize})</div>
+          ${(wai.queue || []).map((id, i) => {
+            const u = db.users.find(x => x.id === id);
+            const isMe = id === currentUser.id;
+            return u ? `<div class="rank-list-item">
+              <span class="rank-num">${i + 1}º</span>
+              ${getAvatarHTML(u, 36)}
+              <span class="rank-name" style="${isMe ? 'color:var(--blue);font-weight:800' : ''}">${u.name.split(' ')[0]} ${isMe ? '(você)' : ''}</span>
+              ${i === 0 ? '<span class="pill pill-gold">Próximo</span>' : ''}
+            </div>` : '';
+          }).join('')}
+        </div>` : ''}`;
+    return;
+  }
+
+  const protagonist = db.users.find(u => u.id === wai.current.userId);
+  const hasVoted = wai.votes.some(v => v.userId === currentUser.id);
+  const facts = wai.current.facts; // shuffled already on publish
+  
+  if (wai.revealed) {
+    // Show results
+    const totalVoters = wai.votes.length;
+    const falsoIdx = wai.current.falsoIndex;
+    const myVote = wai.votes.find(v => v.userId === currentUser.id);
+    const gotRight = myVote && myVote.guessIndex === falsoIdx;
+    const correctCount = wai.votes.filter(v => v.guessIndex === falsoIdx).length;
+    const pctWrong = totalVoters > 0 ? Math.round((1 - correctCount/totalVoters)*100) : 0;
+
+    el.innerHTML = `
+      <div class="card" style="text-align:center;padding:24px">
+        <div style="font-size:40px;margin-bottom:8px">🎉</div>
+        <div style="font-size:18px;font-weight:800;color:var(--blue)">Revelação!</div>
+        <p style="margin:8px 0 16px;font-size:14px">O protagonista foi <strong>${protagonist ? protagonist.name : '?'}</strong></p>
+        <p style="font-size:14px;color:var(--text-muted);margin-bottom:16px">O fato FALSO era o <strong>Fato ${falsoIdx+1}</strong>:</p>
+        <div style="background:var(--bg);padding:14px;border-radius:var(--radius-sm);margin-bottom:16px;font-size:14px;font-weight:600">"${facts[falsoIdx]}"</div>
+        ${myVote ? `<div class="pill ${gotRight?'pill-green':'pill-red'}" style="margin:0 auto 12px">${gotRight?'✅ Você acertou!':'❌ Você errou'}</div>` : ''}
+        <p class="text-muted text-small">${correctCount}/${totalVoters} acertaram · ${pctWrong}% errou</p>
+        ${pctWrong >= 80 ? `<div class="pill pill-gold" style="margin:8px auto 0">✨ Protagonista lendária! (+5 Talentos)</div>` : ''}
+      </div>
+      <div class="card">
+        <div class="card-title">OS 4 FATOS</div>
+        ${facts.map((f,i) => `
+          <div class="fact-card ${i===falsoIdx?'correct':''}" style="cursor:default">
+            <div class="fact-letter">${i+1}</div>
+            <div class="fact-text">${f} ${i===falsoIdx?'<span class="pill pill-red">FALSO</span>':'<span class="pill pill-green">VERDADEIRO</span>'}</div>
+          </div>`).join('')}
+      </div>`;
+    return;
+  }
+
+  if (hasVoted) {
+    const myPos = (wai.queue || []).indexOf(currentUser.id);
+    const myReq = (wai.requests || []).includes(currentUser.id);
+    el.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">✅</div>
+        <p style="font-size:16px;font-weight:800;color:var(--blue)">Voto registrado!</p>
+        <p>+1 Talento adicionado! Aguarde a revelação no domingo.</p>
+      </div>
+      <div class="card" style="margin-top:4px;text-align:center;padding:20px">
+        <div style="font-size:22px;margin-bottom:8px">🌟</div>
+        <div style="font-size:15px;font-weight:800;color:var(--blue);margin-bottom:6px">Quer ser a próxima protagonista?</div>
+        <p class="text-muted text-small" style="margin-bottom:14px">Se inscreva para ter sua vez no Quem Sou Eu!</p>
+        ${myPos >= 0
+          ? `<div class="pill pill-blue" style="margin:0 auto">🎯 Você está na fila — ${myPos + 1}º lugar</div>
+             <button class="btn btn-outline btn-sm mt-8" onclick="leaveWhoAmIQueue();renderWhoAmI()">Sair da fila</button>`
+          : myReq
+            ? `<div class="pill pill-gold" style="margin:0 auto">⏳ Solicitação enviada ao professor</div>`
+            : `<button class="btn btn-primary" onclick="requestWhoAmIQueue()">🙋 Quero ser protagonista!</button>`
+        }
+      </div>`;
+    return;
+  }
+
+  // Voting screen
+  el.innerHTML = `
+    <div class="card" style="margin-bottom:12px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+        ${getAvatarHTML(protagonist, 44)}
+        <div>
+          <div style="font-size:16px;font-weight:800">${protagonist ? protagonist.name : '?'}</div>
+          <div class="text-muted text-small">É o protagonista desta semana</div>
+        </div>
+      </div>
+      <p class="text-muted" style="font-size:13px">Qual dos 4 fatos abaixo você acha que é o <strong>FALSO</strong>?</p>
+    </div>
+    <div class="card">
+      <div class="card-title">OS 4 FATOS (embaralhados)</div>
+      ${facts.map((f,i) => `
+        <div class="fact-card" id="fact_${i}" onclick="selectFact(${i})">
+          <div class="fact-letter">${i+1}</div>
+          <div class="fact-text">${f}</div>
+        </div>`).join('')}
+      <div id="selectedFact" style="display:none;margin-top:12px;text-align:center">
+        <button class="btn btn-primary" onclick="submitWhoAmIVote()">Confirmar minha escolha 🎯</button>
+        <p class="text-muted text-small mt-8">+1 Talento · Acertar = +3 Talentos</p>
+      </div>
+    </div>`;
+}
+
+let selectedFactIdx = null;
+
+function selectFact(idx) {
+  selectedFactIdx = idx;
+  document.querySelectorAll('.fact-card').forEach((c,i) => {
+    c.classList.toggle('selected', i === idx);
+  });
+  document.getElementById('selectedFact').style.display = 'block';
+}
+
+function submitWhoAmIVote() {
+  if (selectedFactIdx === null) return;
+  const db = initDB();
+  db.whoami.votes.push({ userId: currentUser.id, guessIndex: selectedFactIdx });
+  const user = db.users.find(u => u.id === currentUser.id);
+  if (user) awardTalents(db, user, 1, '🔍', 'Participou do Quem Sou Eu');
+  saveDB(db);
+  showToast('+1 Talento! Aguarde a revelação! 🔍', 'success');
+  renderWhoAmI();
+}
+
+function requestWhoAmIQueue() {
+  const db = initDB();
+  if (!db.whoami.requests) db.whoami.requests = [];
+  if (db.whoami.requests.includes(currentUser.id)) return;
+  if ((db.whoami.queue || []).includes(currentUser.id)) {
+    showToast('Você já está na fila!'); return;
+  }
+  db.whoami.requests.push(currentUser.id);
+  saveDB(db);
+  showToast('Solicitação enviada! O professor vai confirmar 🙋', 'success');
+  renderWhoAmI();
+}
+
+function leaveWhoAmIQueue() {
+  const db = initDB();
+  db.whoami.queue = (db.whoami.queue || []).filter(id => id !== currentUser.id);
+  db.whoami.requests = (db.whoami.requests || []).filter(id => id !== currentUser.id);
+  saveDB(db);
+  showToast('Você saiu da fila');
+  renderWhoAmI();
+}
+
+function submitWhoAmIFacts() {
+  const facts = [0,1,2,3].map(i => document.getElementById(`fact${i}`).value.trim());
+  const falsoIndex = parseInt(document.getElementById('falsoIndex').value);
+  if (facts.some(f => !f)) { showToast('Preencha todos os 4 fatos!', 'error'); return; }
+  const db = initDB();
+  if (!db.whoami.current) {
+    db.whoami.current = { userId: currentUser.id, facts, falsoIndex, approved: false };
+    // Remove from queue
+    db.whoami.queue = db.whoami.queue.filter(id => id !== currentUser.id);
+    saveDB(db);
+    closeModal('modalWhoAmI');
+    showToast('Fatos enviados para aprovação! ✅', 'success');
+    renderWhoAmI();
+  }
+}
+
+// ============================================================
+// 🤝 MODULE 4: SECRET PAIR
+// ============================================================
+function renderSecretPair() {
+  const db = initDB();
+  const sp = db.secretpair;
+  const el = document.getElementById('secretpairContent');
+
+  if (!sp.active) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">🤝</div><p>Nenhum sorteio ativo no momento.</p></div>`;
+    return;
+  }
+
+  const myPair = sp.pairs.find(p => p.userId === currentUser.id);
+  if (!myPair) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">🤝</div><p>Você não está no sorteio desta semana.</p></div>`;
+    return;
+  }
+
+  const pairUser = db.users.find(u => u.id === myPair.pairId);
+  const hasReport = sp.reports.some(r => r.userId === currentUser.id);
+
+  if (sp.revealed) {
+    // Find who had me
+    const whoHadMe = sp.pairs.find(p => p.pairId === currentUser.id);
+    const whoUser = whoHadMe ? db.users.find(u => u.id === whoHadMe.userId) : null;
+    const myReport = sp.reports.find(r => r.userId === currentUser.id);
+    const theirReport = whoHadMe ? sp.reports.find(r => r.userId === whoHadMe.userId) : null;
+
+    el.innerHTML = `
+      <div class="pair-reveal-card">
+        <div class="pair-heart">💑</div>
+        <div style="font-size:18px;font-weight:800;margin-bottom:8px">Revelação! 🎉</div>
+        <p style="opacity:.8;font-size:13px">Você cuida esta semana de</p>
+        <div style="font-size:20px;font-weight:900;margin:8px 0">${pairUser ? pairUser.name : '?'}</div>
+        ${whoUser ? `
+          <div style="height:1px;background:rgba(255,255,255,.2);margin:16px 0"></div>
+          <p style="opacity:.8;font-size:13px">Quem está cuidando de você esta semana</p>
+          <div style="font-size:20px;font-weight:900;margin:8px 0">${whoUser.name}</div>` : ''}
+      </div>
+      ${myReport ? `
+        <div class="card">
+          <div class="card-title">MEU RELATO</div>
+          <p style="font-size:14px;line-height:1.6">${myReport.text}</p>
+        </div>` : ''}
+      ${theirReport ? `
+        <div class="card">
+          <div class="card-title">RELATO DE QUEM CUIDOU DE VOCÊ</div>
+          <p style="font-size:14px;line-height:1.6">${theirReport.text}</p>
+        </div>` : ''}`;
+    return;
+  }
+
+  el.innerHTML = `
+    <div class="pair-reveal-card" style="text-align:center">
+      <div class="pair-heart">🤝</div>
+      <div style="font-size:16px;font-weight:800;margin-bottom:8px">Sua dupla secreta esta semana</div>
+      <div style="font-size:24px;font-weight:900;margin:12px 0">${pairUser ? pairUser.name : '?'}</div>
+      ${pairUser ? (pairUser.avatar && pairUser.avatar.length <= 4 ? 
+        `<div style="font-size:48px;margin:8px 0">${pairUser.avatar}</div>` : '') : ''}
+    </div>
+    <div class="card">
+      <div class="card-title">🎯 MISSÃO DA SEMANA</div>
+      <p style="font-size:15px;font-weight:600;line-height:1.6;color:var(--blue)">${sp.mission || 'Nenhuma missão definida'}</p>
+    </div>
+    ${hasReport
+      ? `<div class="card" style="text-align:center">
+          <div style="font-size:32px;margin-bottom:8px">✅</div>
+          <div style="font-size:15px;font-weight:700;color:var(--success)">Relato registrado!</div>
+          <p class="text-muted text-small mt-8">Aguarde a revelação no domingo</p>
+         </div>`
+      : `<button class="btn btn-primary" onclick="document.getElementById('modalPairReport').classList.add('active')">
+          ✍️ Registrar minha experiência (+7 Talentos)
+         </button>
+         <p class="text-muted text-small text-center mt-8">Conte como foi cuidar do seu par</p>`
+    }`;
+}
+
+function submitPairReport() {
+  const text = document.getElementById('pairReportText').value.trim();
+  if (!text) { showToast('Escreva seu relato!', 'error'); return; }
+  const db = initDB();
+  db.secretpair.reports.push({ userId: currentUser.id, text, ts: Date.now() });
+  const user = db.users.find(u => u.id === currentUser.id);
+  if (user) awardTalents(db, user, 7, '🤝', 'Registrou relato da Dupla Secreta');
+  saveDB(db);
+  closeModal('modalPairReport');
+  document.getElementById('pairReportText').value = '';
+  showToast('+7 Talentos! Relato registrado! 🤝', 'success');
+  renderSecretPair();
+}
+
+// ============================================================
+// ⚙️ ADMIN
+// ============================================================
+function renderAdminDashboard() {
+  const db = initDB();
+  const students = db.users.filter(u => u.role !== 'admin');
+  const activeStudents = students.length;
+  const submissionCount = db.challenge.submissions.length;
+  const votesCount = db.voting.votes.filter(v => v.sessionId === db.voting.sessionId).length;
+  const uniqueVoters = [...new Set(db.voting.votes.filter(v => v.sessionId === db.voting.sessionId).map(v => v.voterId))].length;
+  const pct = activeStudents > 0 ? Math.round(uniqueVoters/activeStudents*100) : 0;
+
+  document.getElementById('adminStats').innerHTML = `
+    <div class="stat-card"><div class="stat-value">${activeStudents}</div><div class="stat-label">Alunos</div></div>
+    <div class="stat-card"><div class="stat-value">${pct}%</div><div class="stat-label">Participação</div></div>
+    <div class="stat-card"><div class="stat-value">${submissionCount}</div><div class="stat-label">Entregas</div></div>
+    <div class="stat-card"><div class="stat-value">${db.whoami.queue ? db.whoami.queue.length : 0}</div><div class="stat-label">Na Fila Quem Sou</div></div>`;
+
+  document.getElementById('adminModules').innerHTML = `
+    <div class="admin-menu-item" onclick="showScreen('screen-admin-voting')">
+      <div class="admin-menu-icon blue">🗳️</div>
+      <div class="admin-menu-text"><strong>Votação Destaque</strong><span>${db.voting.active ? '🟢 Aberta' : '🔴 Fechada'}</span></div>
+      <span>›</span>
+    </div>
+    <div class="admin-menu-item" onclick="showScreen('screen-admin-challenge')">
+      <div class="admin-menu-icon gold">📸</div>
+      <div class="admin-menu-text"><strong>Desafio da Semana</strong><span>${db.challenge.active ? '🟢 Ativo' : '🔴 Inativo'} · ${submissionCount} entrega${submissionCount!==1?'s':''}</span></div>
+      <span>›</span>
+    </div>
+    <div class="admin-menu-item" onclick="showScreen('screen-admin-whoami')">
+      <div class="admin-menu-icon purple">🎭</div>
+      <div class="admin-menu-text"><strong>Quem Sou Eu?</strong><span>${db.whoami.current ? (db.whoami.current.approved ? '🟢 Rodada ativa' : '⏳ Aguardando aprovação') : '🔴 Inativo'}</span></div>
+      <span>›</span>
+    </div>
+    <div class="admin-menu-item" onclick="showScreen('screen-admin-secretpair')">
+      <div class="admin-menu-icon teal">🤝</div>
+      <div class="admin-menu-text"><strong>Dupla Secreta</strong><span>${db.secretpair.active ? '🟢 Ativo' : '🔴 Inativo'} · ${db.secretpair.pairs.length} duplas</span></div>
+      <span>›</span>
+    </div>`;
+
+  document.getElementById('adminManagement').innerHTML = `
+    <div class="admin-menu-item" onclick="showScreen('screen-admin-students')">
+      <div class="admin-menu-icon blue">👥</div>
+      <div class="admin-menu-text"><strong>Gerenciar Alunos</strong><span>${activeStudents} aluno${activeStudents!==1?'s':''} cadastrado${activeStudents!==1?'s':''}</span></div>
+      <span>›</span>
+    </div>
+    <div class="admin-menu-item" onclick="showScreen('screen-admin-ranking')">
+      <div class="admin-menu-icon gold">🏆</div>
+      <div class="admin-menu-text"><strong>Ranking Completo</strong><span>Ver todos os rankings</span></div>
+      <span>›</span>
+    </div>
+    <div class="admin-menu-item" onclick="openBonusModal()">
+      <div class="admin-menu-icon teal">🪙</div>
+      <div class="admin-menu-text"><strong>Dar Bônus de Talentos</strong><span>Premiar aluno manualmente</span></div>
+      <span>›</span>
+    </div>
+    <div class="admin-menu-item" onclick="exportBackup()">
+      <div class="admin-menu-icon purple">💾</div>
+      <div class="admin-menu-text"><strong>Backup de Dados</strong><span>Exportar/Importar JSON</span></div>
+      <span>›</span>
+    </div>
+    <div class="admin-menu-item" onclick="changeAdminPin()">
+      <div class="admin-menu-icon blue">🔐</div>
+      <div class="admin-menu-text"><strong>Alterar PIN do Admin</strong><span>Mudar senha do professor</span></div>
+      <span>›</span>
+    </div>`;
+}
+
+// Admin Students
+function renderAdminStudents() {
+  const db = initDB();
+  const students = db.users.filter(u => u.role !== 'admin');
+  const el = document.getElementById('adminStudentsList');
+  if (students.length === 0) {
+    el.innerHTML = `
+      <div class="empty-state"><div class="empty-icon">👥</div><p>Nenhum aluno cadastrado ainda.<br>Clique no + para adicionar.</p></div>
+      <button class="btn btn-primary" onclick="openModal('modalImport')">📊 Importar via CSV/Excel</button>`;
+    return;
+  }
+  el.innerHTML = `
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+      <button class="btn btn-outline" style="flex:1" onclick="openModal('modalImport')">📊 Importar CSV</button>
+      <button class="btn btn-danger btn-sm" onclick="resetAllTalents()" title="Zerar todos os talentos" style="flex:1">🔄 Zerar talentos</button>
+    </div>
+    ${students.map(s => `
+      <div class="student-item">
+        ${getAvatarHTML(s, 42)}
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:700">${s.name}</div>
+          <div class="text-muted text-small">@${s.username} · <span style="color:var(--gold-dark);font-weight:700">T$ ${s.totalTalents||0}</span></div>
+        </div>
+        <div class="student-item-actions">
+          <button class="icon-btn icon-btn-blue" onclick="editStudent('${s.id}')">✏️</button>
+          <button class="icon-btn" onclick="resetStudentTalents('${s.id}')" title="Zerar talentos" style="background:#f1f5f9;color:#64748b;font-size:13px">🔄</button>
+          <button class="icon-btn icon-btn-red" onclick="deleteStudent('${s.id}')">🗑️</button>
+        </div>
+      </div>`).join('')}`;
+}
+
+function openAddStudentModal() {
+  document.getElementById('modalStudentTitle').textContent = 'Novo Aluno';
+  document.getElementById('studentName').value = '';
+  document.getElementById('studentUsername').value = '';
+  document.getElementById('studentPin').value = '';
+  document.getElementById('studentEditId').value = '';
+  // Restore hidden fields
+  document.getElementById('studentName').closest('.form-group-mb').style.display = '';
+  document.getElementById('studentUsername').closest('.form-group-mb').style.display = '';
+  document.getElementById('avatarOptions').closest('.form-group-mb').style.display = '';
+  selectedAvatarEmoji = '😊';
+  renderAvatarOptions();
+  document.getElementById('avatarPreview').style.display = 'none';
+  uploadedAvatarData = null;
+  openModal('modalStudent');
+}
+
+function editStudent(id) {
+  const db = initDB();
+  const s = db.users.find(u => u.id === id);
+  if (!s) return;
+  document.getElementById('modalStudentTitle').textContent = 'Editar Aluno';
+  document.getElementById('studentName').value = s.name;
+  document.getElementById('studentUsername').value = s.username;
+  document.getElementById('studentPin').value = s.pin;
+  document.getElementById('studentEditId').value = id;
+  // Restore hidden fields
+  document.getElementById('studentName').closest('.form-group-mb').style.display = '';
+  document.getElementById('studentUsername').closest('.form-group-mb').style.display = '';
+  document.getElementById('avatarOptions').closest('.form-group-mb').style.display = '';
+  selectedAvatarEmoji = (s.avatar && s.avatar.length <= 4 && !s.avatar.startsWith('data:')) ? s.avatar : '😊';
+  uploadedAvatarData = (s.avatar && s.avatar.startsWith('data:')) ? s.avatar : null;
+  renderAvatarOptions();
+  if (uploadedAvatarData) {
+    document.getElementById('avatarPreview').style.display = 'block';
+    document.getElementById('avatarPreviewImg').src = uploadedAvatarData;
+  }
+  openModal('modalStudent');
+}
+
+function resetAllTalents() {
+  showConfirm(
+    'Zerar TODOS os talentos?',
+    'Histórico, badges e pontos de TODOS os alunos serão zerados. Use antes de iniciar o uso real.',
+    '⚠️',
+    () => {
+      const db = initDB();
+      db.users.filter(u => u.role !== 'admin').forEach(s => {
+        s.talents = 0; s.weeklyTalents = 0;
+        s.monthlyTalents = 0; s.totalTalents = 0;
+        s.history = []; s.badges = [];
+        s.whoamiCorrectStreak = 0; s.commentCount = 0;
+      });
+      saveDB(db);
+      showToast('Todos os talentos zerados! ✅', 'success');
+      renderAdminStudents();
+    }, 'Zerar tudo', true
+  );
+}
+
+function resetStudentTalents(id) {
+  const db = initDB();
+  const s = db.users.find(u => u.id === id);
+  if (!s) return;
+  showConfirm(
+    'Zerar talentos?',
+    `Histórico e talentos de "${s.name}" serão zerados.`,
+    '🔄',
+    () => {
+      const db2 = initDB();
+      const s2 = db2.users.find(u => u.id === id);
+      if (s2) {
+        s2.talents = 0; s2.weeklyTalents = 0;
+        s2.monthlyTalents = 0; s2.totalTalents = 0;
+        s2.history = []; s2.badges = [];
+        s2.whoamiCorrectStreak = 0; s2.commentCount = 0;
+      }
+      saveDB(db2);
+      showToast('Talentos zerados! ✅', 'success');
+      renderAdminStudents();
+    }, 'Zerar', true
+  );
+}
+
+function deleteStudent(id) {
+  const db = initDB();
+  const s = db.users.find(u => u.id === id);
+  if (!s) return;
+  showConfirm(
+    'Remover aluno?',
+    `"${s.name}" será removido permanentemente.`,
+    '🗑️',
+    () => {
+      const db2 = initDB();
+      db2.users = db2.users.filter(u => u.id !== id);
+      if (db2.whoami.queue) db2.whoami.queue = db2.whoami.queue.filter(qid => qid !== id);
+      saveDB(db2);
+      showToast('Aluno removido!');
+      renderAdminStudents();
+    }
+  );
+}
+
+let selectedAvatarEmoji = '😊';
+let uploadedAvatarData = null;
+
+function renderAvatarOptions() {
+  document.getElementById('avatarOptions').innerHTML = AVATARS.map(a => `
+    <div class="avatar-option ${a === selectedAvatarEmoji ? 'selected' : ''}" onclick="selectAvatarEmoji('${a}')">${a}</div>
+  `).join('');
+}
+
+function selectAvatarEmoji(e) {
+  selectedAvatarEmoji = e;
+  uploadedAvatarData = null;
+  document.getElementById('avatarPreview').style.display = 'none';
+  renderAvatarOptions();
+}
+
+function handleAvatarUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  compressImage(file, 500*1024, (data) => {
+    uploadedAvatarData = data;
+    document.getElementById('avatarPreview').style.display = 'block';
+    document.getElementById('avatarPreviewImg').src = data;
+    selectedAvatarEmoji = null;
+    renderAvatarOptions();
+  });
+}
+
+function saveStudent() {
+  const name = document.getElementById('studentName').value.trim();
+  const username = document.getElementById('studentUsername').value.trim().toLowerCase();
+  const pin = document.getElementById('studentPin').value.trim();
+  const editId = document.getElementById('studentEditId').value;
+  if (!name || !username || !pin || pin.length !== 4) {
+    showToast('Preencha todos os campos (PIN deve ter 4 dígitos)', 'error'); return;
+  }
+  const db = initDB();
+  const existing = db.users.find(u => u.username === username && u.id !== editId);
+  if (existing) { showToast('Este apelido já está em uso!', 'error'); return; }
+  const avatar = uploadedAvatarData || selectedAvatarEmoji || '😊';
+  if (editId) {
+    const idx = db.users.findIndex(u => u.id === editId);
+    if (idx > -1) { db.users[idx] = { ...db.users[idx], name, username, pin, avatar }; }
+  } else {
+    db.users.push({ id: 'u_' + Date.now(), username, pin, role: 'student', name, avatar,
+      talents: 0, weeklyTalents: 0, monthlyTalents: 0, totalTalents: 0, history: [], badges: [],
+      whoamiCorrectStreak: 0, commentCount: 0, weekPresenceStreak: 0 });
+    // Add to whoami queue
+    if (!db.whoami.queue) db.whoami.queue = [];
+    db.whoami.queue.push(db.users[db.users.length-1].id);
+  }
+  saveDB(db);
+  closeModal('modalStudent');
+  showToast(editId ? 'Aluno atualizado!' : 'Aluno cadastrado!', 'success');
+  renderAdminStudents();
+}
+
+// Admin Voting
+function renderAdminVoting() {
+  const db = initDB();
+  const voting = db.voting;
+  const el = document.getElementById('adminVotingContent');
+  const sessionVotes = voting.votes.filter(v => v.sessionId === voting.sessionId);
+  const uniqueVoters = [...new Set(sessionVotes.map(v => v.voterId))].length;
+  const students = db.users.filter(u => u.role !== 'admin');
+
+  el.innerHTML = `
+    <div class="card">
+      <div class="flex-between mb-16">
+        <div>
+          <div style="font-size:16px;font-weight:800">Status da Votação</div>
+          <div class="pill ${voting.active?'pill-green':'pill-red'} mt-8">${voting.active ? '🟢 Aberta' : '🔴 Fechada'}</div>
+        </div>
+        <button class="btn ${voting.active?'btn-danger':'btn-success'} btn-sm" onclick="toggleVoting()">
+          ${voting.active ? '⛔ Encerrar' : '▶️ Abrir Votação'}
+        </button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+        <div class="stat-card"><div class="stat-value">${uniqueVoters}</div><div class="stat-label">Votaram</div></div>
+        <div class="stat-card"><div class="stat-value">${students.length - uniqueVoters}</div><div class="stat-label">Faltam</div></div>
+      </div>
+      ${voting.active || sessionVotes.length > 0 ? `
+        <div class="flex-between">
+          <span class="text-muted text-small">Mostrar resultados para alunos</span>
+          <label class="toggle-switch">
+            <input type="checkbox" ${voting.showResults?'checked':''} onchange="toggleShowResults(this.checked)">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>` : ''}
+    </div>
+    ${sessionVotes.length > 0 ? `
+      <div class="card">
+        <div class="card-title">RESULTADOS EM TEMPO REAL</div>
+        <div id="adminVotingResults"></div>
+      </div>` : ''}
+    <div class="card">
+      <div class="card-title">QUEM NÃO VOTOU</div>
+      ${students.filter(s => !sessionVotes.some(v => v.voterId === s.id)).map(s => `
+        <div class="rank-list-item">
+          ${getAvatarHTML(s, 36)}
+          <span class="rank-name">${s.name}</span>
+          <span class="pill pill-red">Não votou</span>
+        </div>`).join('') || '<p class="text-muted text-small">Todos votaram! 🎉</p>'}
+    </div>`;
+
+  if (sessionVotes.length > 0) renderAdminVotingResults(db, sessionVotes);
+}
+
+function renderAdminVotingResults(db, votes) {
+  const categories = { helped: '🤝 Ajudou', creative: '💡 Criativo', empathy: '❤️ Empatia' };
+  const counts = {};
+  votes.forEach(v => {
+    if (!counts[v.targetId]) counts[v.targetId] = { total: 0, cats: {} };
+    counts[v.targetId].total++;
+    counts[v.targetId].cats[v.category] = (counts[v.targetId].cats[v.category]||0)+1;
+  });
+  const students = db.users.filter(u => u.role !== 'admin');
+  const ranked = students.filter(s => counts[s.id]).sort((a,b) => counts[b.id].total - counts[a.id].total);
+  const maxV = ranked.length > 0 ? counts[ranked[0].id].total : 1;
+  const el = document.getElementById('adminVotingResults');
+  if (!el) return;
+  el.innerHTML = ranked.map((s,i) => `
+    <div class="result-item">
+      <div class="result-item-header">
+        <span>${i===0?'🥇':i===1?'🥈':i===2?'🥉':'•'} ${s.name}</span>
+        <span class="font-bold">${counts[s.id].total} voto${counts[s.id].total>1?'s':''}</span>
+      </div>
+      <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">
+        ${Object.entries(counts[s.id].cats).map(([cat,n]) => `${categories[cat]||cat}: ${n}`).join(' · ')}
+      </div>
+      <div class="result-bar"><div class="result-bar-fill" style="width:${Math.round(counts[s.id].total/maxV*100)}%"></div></div>
+    </div>`).join('') || '<p class="text-muted text-small">Nenhum voto ainda</p>';
+}
+
+function toggleVoting() {
+  const db = initDB();
+  if (db.voting.active) {
+    db.voting.active = false;
+    showToast('Votação encerrada!');
+  } else {
+    db.voting.active = true;
+    db.voting.sessionId = 'sess_' + Date.now();
+    showToast('Votação aberta! 🗳️', 'success');
+  }
+  saveDB(db);
+  renderAdminVoting();
+}
+
+function toggleShowResults(val) {
+  const db = initDB();
+  db.voting.showResults = val;
+  saveDB(db);
+  showToast(val ? 'Resultados visíveis!' : 'Resultados ocultados');
+}
+
+// Admin Challenge
+function renderAdminChallenge() {
+  const db = initDB();
+  const ch = db.challenge;
+  const el = document.getElementById('adminChallengeContent');
+  const students = db.users.filter(u => u.role !== 'admin');
+  const notSent = students.filter(s => !ch.submissions.some(sub => sub.userId === s.id));
+
+  // Populate challenge templates
+  document.getElementById('challengeTemplates').innerHTML = CHALLENGE_TEMPLATES.map(t => `
+    <div class="chip" style="margin-bottom:6px" onclick="selectChallengeTemplate(this,'${t.replace(/'/g,"\\'")}')">📝 ${t}</div>
+  `).join('');
+
+  el.innerHTML = `
+    <div class="card">
+      <div class="flex-between mb-16">
+        <div>
+          <div style="font-size:16px;font-weight:800">Status do Desafio</div>
+          ${ch.active ? `<div class="pill pill-green mt-8">🟢 Ativo</div>` : `<div class="pill pill-red mt-8">🔴 Inativo</div>`}
+        </div>
+        <button class="btn ${ch.active?'btn-danger':'btn-success'} btn-sm" onclick="toggleChallenge()">
+          ${ch.active ? '⛔ Encerrar' : '▶️ Abrir Desafio'}
+        </button>
+      </div>
+      ${ch.active ? `
+        <div style="padding:12px;background:var(--bg);border-radius:10px;margin-bottom:12px">
+          <div style="font-size:14px;font-weight:700">${ch.title}</div>
+          <div class="text-muted text-small mt-8">${ch.description}</div>
+          <div class="text-muted text-small">Prazo: ${formatDate(ch.deadline)}</div>
+        </div>` : ''}
+      ${!ch.active ? `<button class="btn btn-primary" onclick="openModal('modalChallenge')">➕ Criar Novo Desafio</button>` : ''}
+    </div>
+    <div class="card">
+      <div class="card-title">ENTREGAS (${ch.submissions.length})</div>
+      ${(() => {
+        const pending = ch.submissions.filter(s => !s.approved);
+        const approved = ch.submissions.filter(s => s.approved);
+        return `
+          ${pending.length > 0 ? `
+            <div style="background:#fffbeb;border:1px solid var(--gold);border-radius:10px;padding:12px;margin-bottom:12px">
+              <div style="font-size:12px;font-weight:800;color:var(--gold-dark);margin-bottom:10px">⏳ AGUARDANDO APROVAÇÃO (${pending.length})</div>
+              ${pending.map(s => {
+                const u = db.users.find(x => x.id === s.userId);
+                return `<div class="rank-list-item" style="margin-bottom:8px">
+                  ${s.photo ? `<img src="${s.photo}" style="width:48px;height:48px;object-fit:cover;border-radius:8px;flex-shrink:0;cursor:pointer" onclick="openLightbox('${s.id}')">` : getAvatarHTML(u, 48)}
+                  <span class="rank-name" style="flex:1">${u ? u.name.split(' ')[0] : '?'}</span>
+                  <button class="btn btn-success btn-sm" onclick="approveSubmission('${s.id}')">✅ Aprovar</button>
+                  <button class="btn btn-danger btn-sm" onclick="rejectSubmission('${s.id}')">❌ Reprovar</button>
+                  <button class="icon-btn icon-btn-red" onclick="adminDeleteSubmission('${s.id}')">🗑️</button>
+                </div>`;
+              }).join('')}
+            </div>` : ''}
+          ${approved.length > 0 ? `
+            <div style="font-size:12px;font-weight:800;color:var(--green);margin-bottom:8px">✅ APROVADAS (${approved.length})</div>
+            ${approved.map(s => {
+              const u = db.users.find(x => x.id === s.userId);
+              return `<div class="rank-list-item">
+                ${s.photo ? `<img src="${s.photo}" style="width:40px;height:40px;object-fit:cover;border-radius:8px;flex-shrink:0">` : getAvatarHTML(u, 40)}
+                <span class="rank-name" style="flex:1">${u ? u.name : '?'}</span>
+                <span class="text-muted text-small">${(s.likes||[]).length} ❤️</span>
+                <button class="icon-btn icon-btn-red" onclick="adminDeleteSubmission('${s.id}')">🗑️</button>
+              </div>`;
+            }).join('')}` : ''}
+          ${(function() {
+            var rej = ch.submissions.filter(function(s) { return s.rejected; });
+            if (!rej.length) return '';
+            var rows = rej.map(function(s) {
+              var u = db.users.find(function(x) { return x.id === s.userId; });
+              var img = s.photo ? '<img src="' + s.photo + '" style="width:40px;height:40px;object-fit:cover;border-radius:8px;flex-shrink:0">' : getAvatarHTML(u, 40);
+              return '<div class="rank-list-item">' + img +
+                '<span class="rank-name" style="flex:1;color:#ef4444">' + (u ? u.name : '?') + '</span>' +
+                '<button class="btn btn-success btn-sm" onclick="approveSubmission(' + JSON.stringify(s.id) + ')">↩️ Aprovar</button>' +
+                '<button class="icon-btn icon-btn-red" onclick="adminDeleteSubmission(' + JSON.stringify(s.id) + ')">🗑️</button>' +
+                '</div>';
+            }).join('');
+            return '<div style="font-size:12px;font-weight:800;color:#ef4444;margin:8px 0">❌ REPROVADAS (' + rej.length + ')</div>' + rows;
+          })()}
+          ${ch.submissions.length === 0 ? '<p class="text-muted text-small">Nenhuma entrega ainda</p>' : ''}`;
+      })()}
+    </div>
+    <div class="card">
+      <div class="card-title">NÃO ENVIARAM (${notSent.length})</div>
+      ${notSent.map(s => `
+        <div class="rank-list-item">
+          ${getAvatarHTML(s, 36)}
+          <span class="rank-name">${s.name}</span>
+          <span class="pill pill-red">Pendente</span>
+        </div>`).join('') || '<p class="text-muted text-small">Todos enviaram! 🎉</p>'}
+    </div>`;
+}
+
+function selectChallengeTemplate(el, text) {
+  document.querySelectorAll('#challengeTemplates .chip').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('challengeDesc').value = text;
+  document.getElementById('challengeTitle').value = text.substring(0, 50) + (text.length > 50 ? '...' : '');
+}
+
+function toggleChallenge() {
+  const db = initDB();
+  if (db.challenge.active) {
+    // Award most liked
+    const subs = db.challenge.submissions;
+    if (subs.length > 0) {
+      const topSub = subs.sort((a,b) => (b.likes||[]).length - (a.likes||[]).length)[0];
+      if ((topSub.likes||[]).length > 0) {
+        const topUser = db.users.find(u => u.id === topSub.userId);
+        if (topUser) awardTalents(db, topUser, 5, '🏆', 'Entrega mais curtida da semana!');
+      }
+    }
+    db.challenge.active = false;
+    showToast('Desafio encerrado!');
+  } else {
+    showToast('Crie um desafio primeiro!', 'error');
+    openModal('modalChallenge');
+    return;
+  }
+  saveDB(db);
+  renderAdminChallenge();
+}
+
+function saveChallenge() {
+  const title = document.getElementById('challengeTitle').value.trim();
+  const desc = document.getElementById('challengeDesc').value.trim();
+  const deadline = document.getElementById('challengeDeadline').value;
+  if (!title || !desc) { showToast('Preencha título e descrição', 'error'); return; }
+  const db = initDB();
+  db.challenge = { active: true, title, description: desc, deadline, submissions: [] };
+  saveDB(db);
+  closeModal('modalChallenge');
+  showToast('Desafio criado! ✅', 'success');
+  renderAdminChallenge();
+}
+
+function rejectSubmission(subId) {
+  const db = initDB();
+  const sub = db.challenge.submissions.find(s => s.id === subId);
+  if (!sub) return;
+  sub.rejected = true;
+  sub.approved = false;
+  saveDB(db);
+  const u = db.users.find(x => x.id === sub.userId);
+  showToast(`Entrega de ${u ? u.name.split(' ')[0] : 'aluno'} reprovada`, 'error');
+  renderAdminChallenge();
+}
+
+function approveSubmission(subId) {
+  const db = initDB();
+  const sub = db.challenge.submissions.find(s => s.id === subId);
+  if (!sub) return;
+  sub.approved = true;
+  sub.rejected = false;
+  // Award talents on approval
+  const user = db.users.find(u => u.id === sub.userId);
+  if (user) {
+    awardTalents(db, user, 10, '📸', 'Entrega aprovada no desafio');
+    unlockBadge(db, user, 'first_delivery');
+  }
+  saveDB(db);
+  showToast('Entrega aprovada! +10 Talentos para o aluno ✅', 'success');
+  renderAdminChallenge();
+}
+
+function adminDeleteSubmission(id) {
+  showConfirm('Remover entrega?', 'A entrega será removida do mural.', '🗑️', () => {
+    const db = initDB();
+    db.challenge.submissions = db.challenge.submissions.filter(s => s.id !== id);
+    saveDB(db);
+    showToast('Entrega removida');
+    renderAdminChallenge();
+  });
+}
+
+// Admin Who Am I
+function renderAdminWhoAmI() {
+  const db = initDB();
+  const wai = db.whoami;
+  const el = document.getElementById('adminWhoamiContent');
+  const students = db.users.filter(u => u.role !== 'admin');
+  const queue = (wai.queue || []).map(id => db.users.find(u => u.id === id)).filter(Boolean);
+  const requests = (wai.requests || []).map(id => db.users.find(u => u.id === id)).filter(Boolean);
+
+  el.innerHTML = `
+    ${requests.length > 0 ? `
+    <div class="card" style="border:2px solid var(--gold);background:#fffbeb">
+      <div class="card-title" style="color:var(--gold-dark)">🙋 SOLICITAÇÕES PENDENTES (${requests.length})</div>
+      <p class="text-muted text-small mb-16">Alunos que querem participar — aprove para entrar na fila:</p>
+      ${requests.map(s => `
+        <div class="rank-list-item">
+          ${getAvatarHTML(s, 36)}
+          <span class="rank-name">${s.name}</span>
+          <div style="display:flex;gap:8px">
+            <button class="icon-btn icon-btn-blue" onclick="approveWhoAmIRequest('${s.id}')" title="Aprovar">✅</button>
+            <button class="icon-btn icon-btn-red" onclick="rejectWhoAmIRequest('${s.id}')" title="Recusar">❌</button>
+          </div>
+        </div>`).join('')}
+    </div>` : ''}
+
+    <div class="card">
+      <div class="card-title">📋 FILA DE PROTAGONISTAS (${queue.length})</div>
+      ${queue.length === 0
+        ? '<p class="text-muted text-small">Fila vazia — alunos podem se inscrever pelo app</p>'
+        : queue.map((s,i) => `
+          <div class="rank-list-item">
+            <span class="rank-num">${i+1}º</span>
+            ${getAvatarHTML(s, 36)}
+            <span class="rank-name">${s.name}</span>
+            <div style="display:flex;gap:6px;align-items:center">
+              ${i === 0 ? '<span class="pill pill-gold">Próximo</span>' : ''}
+              <button class="icon-btn icon-btn-red" onclick="removeFromWhoAmIQueue('${s.id}')" title="Remover da fila" style="width:28px;height:28px;font-size:13px">✕</button>
+            </div>
+          </div>`).join('')}
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button class="btn btn-outline btn-sm" style="flex:1" onclick="addToWhoAmIQueue()">➕ Adicionar manualmente</button>
+        ${queue.length > 0 ? `<button class="btn btn-primary btn-sm" style="flex:1" onclick="promoteNextWhoAmI()">▶️ Promover próximo</button>` : ''}
+      </div>
+    </div>
+
+    ${wai.current ? `
+      <div class="card">
+        <div class="card-title">🎯 RODADA ATUAL</div>
+        ${(() => {
+          const prot = db.users.find(u => u.id === wai.current.userId);
+          return `
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+              ${getAvatarHTML(prot, 44)}
+              <div>
+                <div style="font-size:15px;font-weight:700">${prot ? prot.name : '?'}</div>
+                <span class="pill ${wai.current.approved?'pill-green':'pill-red'}">${wai.current.approved ? '✅ Aprovado' : '⏳ Aguardando fatos'}</span>
+              </div>
+            </div>
+            ${wai.current.facts ? `
+              <div style="margin-bottom:12px">
+                ${wai.current.facts.map((f,i) => `
+                  <div class="fact-card" style="cursor:default;margin-bottom:8px">
+                    <div class="fact-letter">${i+1}</div>
+                    <div class="fact-text">${f} ${i === wai.current.falsoIndex ? '<span class="pill pill-red">FALSO</span>' : ''}</div>
+                  </div>`).join('')}
+              </div>` : '<p class="text-muted text-small mb-16">Aguardando o protagonista cadastrar os fatos...</p>'}
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+              ${!wai.current.approved && wai.current.facts ? `<button class="btn btn-success btn-sm" onclick="approveWhoAmI()">✅ Aprovar fatos</button>` : ''}
+              ${wai.current.approved && !wai.revealed ? `<button class="btn btn-gold btn-sm" onclick="revealWhoAmI()">🎉 Revelar resultado</button>` : ''}
+              <button class="btn btn-danger btn-sm" onclick="resetWhoAmI()">🗑️ Resetar rodada</button>
+            </div>
+            ${wai.votes.length > 0 ? `<p class="text-muted text-small mt-8">${wai.votes.length} voto${wai.votes.length!==1?'s':''} registrado${wai.votes.length!==1?'s':''}</p>` : ''}`;
+        })()}
+      </div>`
+      : `<div class="card" style="text-align:center;padding:24px">
+          <p class="text-muted" style="margin-bottom:16px">Nenhuma rodada ativa.</p>
+          ${queue.length > 0
+            ? `<button class="btn btn-primary" onclick="promoteNextWhoAmI()">▶️ Iniciar rodada com ${db.users.find(u=>u.id===wai.queue[0])?.name?.split(' ')[0] || 'próximo'}</button>`
+            : '<p class="text-muted text-small">Aguarde alunos se inscreverem ou adicione manualmente.</p>'}
+        </div>`}
+    `;
+}
+
+function approveWhoAmIRequest(userId) {
+  const db = initDB();
+  db.whoami.requests = (db.whoami.requests || []).filter(id => id !== userId);
+  if (!db.whoami.queue) db.whoami.queue = [];
+  if (!db.whoami.queue.includes(userId)) db.whoami.queue.push(userId);
+  saveDB(db);
+  const u = db.users.find(x => x.id === userId);
+  showToast(`${u ? u.name.split(' ')[0] : 'Aluno'} adicionado à fila! ✅`, 'success');
+  renderAdminWhoAmI();
+}
+
+function rejectWhoAmIRequest(userId) {
+  const db = initDB();
+  db.whoami.requests = (db.whoami.requests || []).filter(id => id !== userId);
+  saveDB(db);
+  const u = db.users.find(x => x.id === userId);
+  showToast(`Solicitação de ${u ? u.name.split(' ')[0] : 'aluno'} recusada`);
+  renderAdminWhoAmI();
+}
+
+function removeFromWhoAmIQueue(userId) {
+  const db = initDB();
+  db.whoami.queue = (db.whoami.queue || []).filter(id => id !== userId);
+  saveDB(db);
+  showToast('Removido da fila');
+  renderAdminWhoAmI();
+}
+
+function approveWhoAmI() {
+  const db = initDB();
+  db.whoami.current.approved = true;
+  // Shuffle facts for display
+  const facts = db.whoami.current.facts;
+  const falsoIndex = db.whoami.current.falsoIndex;
+  const originalFalso = facts[falsoIndex];
+  const shuffled = [...facts].sort(() => Math.random() - 0.5);
+  const newFalsoIdx = shuffled.indexOf(originalFalso);
+  db.whoami.current.facts = shuffled;
+  db.whoami.current.falsoIndex = newFalsoIdx;
+  db.whoami.current.originalOrder = facts;
+  saveDB(db);
+  showToast('Fatos aprovados! Rodada ativa. ✅', 'success');
+  renderAdminWhoAmI();
+}
+
+function revealWhoAmI() {
+  const db = initDB();
+  db.whoami.revealed = true;
+  const votes = db.whoami.votes;
+  const falsoIdx = db.whoami.current.falsoIndex;
+  const correctCount = votes.filter(v => v.guessIndex === falsoIdx).length;
+  const pctWrong = votes.length > 0 ? (1 - correctCount/votes.length) : 0;
+
+  // Award correcters
+  votes.forEach(v => {
+    const u = db.users.find(u => u.id === v.userId);
+    if (!u) return;
+    if (v.guessIndex === falsoIdx) {
+      awardTalents(db, u, 3, '🔍', 'Acertou o fato falso!');
+      u.whoamiCorrectStreak = (u.whoamiCorrectStreak || 0) + 1;
+      if (u.whoamiCorrectStreak >= 3) unlockBadge(db, u, 'sharp_eye_3');
+    } else {
+      u.whoamiCorrectStreak = 0;
+    }
+  });
+  // Bonus if 80%+ wrong
+  if (pctWrong >= 0.8) {
+    const prot = db.users.find(u => u.id === db.whoami.current.userId);
+    if (prot) {
+      awardTalents(db, prot, 5, '✨', 'Protagonista lendária: 80%+ erraram!');
+      unlockBadge(db, prot, 'legendary');
+    }
+  }
+  saveDB(db);
+  showToast('Revelação feita! 🎉', 'success');
+  confetti();
+  renderAdminWhoAmI();
+}
+
+function resetWhoAmI() {
+  showConfirm('Resetar rodada?', 'A rodada atual e todos os votos serão apagados.', '⚠️', () => {
+    const db = initDB();
+    db.whoami.current = null;
+    db.whoami.votes = [];
+    db.whoami.revealed = false;
+    saveDB(db);
+    showToast('Rodada resetada');
+    renderAdminWhoAmI();
+  });
+}
+
+function promoteNextWhoAmI() {
+  const db = initDB();
+  if (!db.whoami.queue || db.whoami.queue.length === 0) {
+    // Rebuild queue from all students
+    const students = db.users.filter(u => u.role !== 'admin');
+    db.whoami.queue = students.map(s => s.id).sort(() => Math.random() - 0.5);
+  }
+  if (db.whoami.queue.length === 0) { showToast('Cadastre alunos primeiro!', 'error'); return; }
+  const nextId = db.whoami.queue[0];
+  db.whoami.current = null;
+  db.whoami.votes = [];
+  db.whoami.revealed = false;
+  // The protagonist registers their own facts — keep them in queue until they do
+  saveDB(db);
+  showToast('Próximo protagonista promovido! ✅', 'success');
+  renderAdminWhoAmI();
+}
+
+function addToWhoAmIQueue() {
+  const db = initDB();
+  const students = db.users.filter(u => u.role !== 'admin' && !(db.whoami.queue||[]).includes(u.id));
+  if (students.length === 0) { showToast('Todos já estão na fila!'); return; }
+  // Build a quick select modal reusing the bonus modal structure
+  document.getElementById('bonusStudentId').innerHTML = students.map(s => `<option value="${s.id}">${s.name} (@${s.username})</option>`).join('');
+  document.querySelector('#modalBonus .modal-title').textContent = 'Adicionar à fila';
+  document.querySelector('#modalBonus [onclick="giveBonus()"]').textContent = '➕ Adicionar';
+  document.querySelector('#modalBonus [onclick="giveBonus()"]').onclick = function() {
+    const sid = document.getElementById('bonusStudentId').value;
+    const db2 = initDB();
+    if (!db2.whoami.queue) db2.whoami.queue = [];
+    db2.whoami.queue.push(sid);
+    saveDB(db2);
+    const u = db2.users.find(x => x.id === sid);
+    closeModal('modalBonus');
+    showToast(`${u ? u.name.split(' ')[0] : 'Aluno'} adicionado à fila! ✅`, 'success');
+    renderAdminWhoAmI();
+    // restore button
+    document.querySelector('#modalBonus [onclick]').textContent = 'Dar Bônus ★';
+    document.querySelector('#modalBonus [onclick]').onclick = giveBonus;
+    document.querySelector('#modalBonus .modal-title').textContent = 'Dar Bônus de Talentos';
+  };
+  // Hide amount/reason fields temporarily
+  document.getElementById('bonusAmount').closest('.form-group-mb').style.display = 'none';
+  document.getElementById('bonusReason').closest('.form-group-mb').style.display = 'none';
+  openModal('modalBonus');
+}
+
+// Admin Secret Pair
+function renderAdminSecretPair() {
+  const db = initDB();
+  const sp = db.secretpair;
+  const el = document.getElementById('adminSecretpairContent');
+  const students = db.users.filter(u => u.role !== 'admin');
+
+  // Populate mission templates
+  document.getElementById('missionTemplates').innerHTML = `<div class="card-title" style="margin-top:12px">TEMPLATES</div>` + PAIR_MISSIONS.map(m => `
+    <div class="chip" style="margin-bottom:6px" onclick="document.getElementById('pairMissionText').value='${m.replace(/'/g,"\\'")}'">📌 ${m}</div>
+  `).join('');
+
+  el.innerHTML = `
+    <div class="card">
+      <div class="flex-between mb-16">
+        <div>
+          <div style="font-size:16px;font-weight:800">Status</div>
+          <div class="pill ${sp.active?'pill-green':'pill-red'} mt-8">${sp.active ? '🟢 Ativo' : '🔴 Inativo'}</div>
+        </div>
+        <button class="btn btn-success btn-sm" onclick="drawSecretPairs()">🎲 Fazer Sorteio</button>
+      </div>
+      <div style="margin-bottom:12px">
+        <div class="text-muted text-small" style="margin-bottom:6px">Missão atual:</div>
+        <div style="font-size:14px;font-weight:600">${sp.mission || 'Nenhuma missão definida'}</div>
+        <button class="btn btn-outline btn-sm mt-8" onclick="openModal('modalPairMission')">✏️ Definir Missão</button>
+      </div>
+      ${sp.active ? `
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px">
+          <button class="btn btn-gold btn-sm" onclick="revealSecretPairs()">🎉 Revelar Duplas</button>
+          <button class="btn btn-danger btn-sm" onclick="resetSecretPairs()">🗑️ Resetar</button>
+        </div>` : ''}
+    </div>
+    ${sp.pairs.length > 0 ? `
+      <div class="card">
+        <div class="card-title">DUPLAS SORTEADAS (${sp.pairs.length})</div>
+        ${sp.pairs.map(p => {
+          const u = db.users.find(x => x.id === p.userId);
+          const pu = db.users.find(x => x.id === p.pairId);
+          const hasReport = sp.reports.some(r => r.userId === p.userId);
+          return `<div class="rank-list-item">
+            ${getAvatarHTML(u, 36)}
+            <span class="rank-name">${u ? u.name : '?'}</span>
+            <span style="color:var(--text-muted)">→</span>
+            <span class="rank-name">${pu ? pu.name : '?'}</span>
+            ${hasReport ? '<span class="pill pill-green">✅ Relato</span>' : '<span class="pill pill-red">Pendente</span>'}
+          </div>`;
+        }).join('')}
+      </div>` : ''}
+    ${sp.reports.length > 0 ? `
+      <div class="card">
+        <div class="card-title">RELATOS (${sp.reports.length})</div>
+        ${sp.reports.map(r => {
+          const u = db.users.find(x => x.id === r.userId);
+          return `<div style="padding:12px 0;border-bottom:1px solid var(--border)">
+            <div style="font-size:13px;font-weight:700;margin-bottom:6px">${u ? u.name : '?'}</div>
+            <div style="font-size:13px;line-height:1.5;color:var(--text-muted)">${r.text}</div>
+            <button class="btn btn-gold btn-sm mt-8" onclick="givePairBonus('${r.userId}')">★ Dar Bônus Especial</button>
+          </div>`;
+        }).join('')}
+      </div>` : ''}`;
+}
+
+function drawSecretPairs() {
+  const db = initDB();
+  const students = db.users.filter(u => u.role !== 'admin');
+  if (students.length < 2) { showToast('Precisa de pelo menos 2 alunos!', 'error'); return; }
+  if (!db.secretpair.mission) { showToast('Defina a missão primeiro!', 'error'); openModal('modalPairMission'); return; }
+  // Shuffle and pair
+  const shuffled = [...students].sort(() => Math.random() - 0.5);
+  const pairs = shuffled.map((s, i) => ({
+    userId: s.id,
+    pairId: shuffled[(i + 1) % shuffled.length].id
+  }));
+  db.secretpair = { ...db.secretpair, active: true, pairs, reports: [], revealed: false, drawDate: Date.now() };
+  // Award participation
+  students.forEach(s => {
+    const u = db.users.find(u => u.id === s.id);
+    if (u) awardTalents(db, u, 3, '🤝', 'Participou do sorteio da Dupla Secreta');
+  });
+  saveDB(db);
+  showToast(`${pairs.length} duplas sorteadas! 🎲`, 'success');
+  renderAdminSecretPair();
+}
+
+function revealSecretPairs() {
+  const db = initDB();
+  db.secretpair.revealed = true;
+  saveDB(db);
+  showToast('Duplas reveladas! 🎉', 'success');
+  confetti();
+  renderAdminSecretPair();
+}
+
+function resetSecretPairs() {
+  showConfirm('Resetar sorteio?', 'Todas as duplas e relatos serão apagados.', '⚠️', () => {
+    const db = initDB();
+    db.secretpair = { active: false, pairs: [], mission: db.secretpair.mission, reports: [], revealed: false };
+    saveDB(db);
+    showToast('Sorteio resetado');
+    renderAdminSecretPair();
+  });
+}
+
+function savePairMission() {
+  const text = document.getElementById('pairMissionText').value.trim();
+  if (!text) { showToast('Escreva a missão!', 'error'); return; }
+  const db = initDB();
+  db.secretpair.mission = text;
+  saveDB(db);
+  closeModal('modalPairMission');
+  showToast('Missão definida! ✅', 'success');
+  renderAdminSecretPair();
+}
+
+function givePairBonus(userId) {
+  const db = initDB();
+  const u = db.users.find(x => x.id === userId);
+  if (!u) return;
+  awardTalents(db, u, 5, '⭐', 'Bônus por relato especial da Dupla Secreta');
+  saveDB(db);
+  showToast(`+5 Talentos para ${u.name.split(' ')[0]}! ✅`, 'gold');
+  renderAdminSecretPair();
+}
+
+// ============================================================
+// 🪙 TALENTS & BADGES
+// ============================================================
+function awardTalents(db, user, amount, icon, desc) {
+  user.talents = (user.talents||0) + amount;
+  user.weeklyTalents = (user.weeklyTalents||0) + amount;
+  user.monthlyTalents = (user.monthlyTalents||0) + amount;
+  user.totalTalents = (user.totalTalents||0) + amount;
+  if (!user.history) user.history = [];
+  user.history.push({ pts: amount, icon, desc, ts: Date.now(), type: desc.toLowerCase().includes('curtu')?'like':desc.toLowerCase().includes('coment')?'comment':'other' });
+}
+
+function unlockBadge(db, user, badgeId) {
+  if (!user.badges) user.badges = [];
+  if (!user.badges.includes(badgeId)) {
+    user.badges.push(badgeId);
+    // Mark as pending notification so confetti shows on next login
+    if (!user.pendingBadges) user.pendingBadges = [];
+    user.pendingBadges.push(badgeId);
+    const badge = BADGES_DEF.find(b => b.id === badgeId);
+    if (badge) showToast(`🏅 Conquista desbloqueada: ${badge.name}!`, 'gold');
+  }
+}
+
+// ============================================================
+// 💰 BONUS
+// ============================================================
+function openBonusModal() {
+  const db = initDB();
+  const students = db.users.filter(u => u.role !== 'admin');
+  document.getElementById('bonusStudentId').innerHTML = students.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+  // Restore fields and button in case they were hidden by addToWhoAmIQueue
+  document.getElementById('bonusAmount').closest('.form-group-mb').style.display = '';
+  document.getElementById('bonusReason').closest('.form-group-mb').style.display = '';
+  document.querySelector('#modalBonus .modal-title').textContent = 'Dar Bônus de Talentos';
+  const btn = document.querySelector('#modalBonus .btn-gold, #modalBonus .btn-primary');
+  if (btn) { btn.textContent = 'Dar Bônus ★'; btn.className = 'btn btn-gold btn-sm'; btn.onclick = giveBonus; }
+  openModal('modalBonus');
+}
+
+function giveBonus() {
+  const sid = document.getElementById('bonusStudentId').value;
+  const amount = parseInt(document.getElementById('bonusAmount').value);
+  const reason = document.getElementById('bonusReason').value.trim() || 'Bônus do professor';
+  if (!sid || !amount || amount < 1) { showToast('Preencha os campos!', 'error'); return; }
+  const db = initDB();
+  const u = db.users.find(x => x.id === sid);
+  if (!u) return;
+  awardTalents(db, u, amount, '⭐', reason);
+  saveDB(db);
+  closeModal('modalBonus');
+  showToast(`+${amount} Talentos para ${u.name.split(' ')[0]}! ✅`, 'gold');
+}
+
+// ============================================================
+// 💾 BACKUP & UTILITÁRIOS
+// ============================================================
+function downloadSampleCSV() {
+  const csv = `Nome,Apelido,PIN
+João Silva,joao,1234
+Maria Santos,maria,5678
+Pedro Oliveira,pedro,9012
+Ana Costa,ana,3456
+Lucas Ferreira,lucas,7890`;
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'modelo_alunos_ebd.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Modelo baixado! Edite e reimporte 📥');
+}
+function exportBackup() {
+  const db = getDB();
+  const json = JSON.stringify(db, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `ebd_backup_${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Backup exportado! 💾', 'success');
+}
+
+function changeAdminPin() {
+  // Reuse student modal for PIN change
+  document.getElementById('modalStudentTitle').textContent = '🔐 Alterar PIN do Admin';
+  document.getElementById('studentName').value = 'Professor';
+  document.getElementById('studentUsername').value = 'professor';
+  document.getElementById('studentPin').value = '';
+  document.getElementById('studentEditId').value = 'admin';
+  document.getElementById('studentName').closest('.form-group-mb').style.display = 'none';
+  document.getElementById('studentUsername').closest('.form-group-mb').style.display = 'none';
+  document.getElementById('avatarOptions').closest('.form-group-mb').style.display = 'none';
+  openModal('modalStudent');
+}
+
+// ============================================================
+// 🗂️ CSV / EXCEL IMPORT — detecta formato automaticamente
+// ============================================================
+function handleExcelImport(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+
+  reader.onload = (ev) => {
+    try {
+      let rows = [];
+      const isCSV = file.name.toLowerCase().endsWith('.csv');
+
+      if (isCSV) {
+        const text = new TextDecoder('utf-8').decode(new Uint8Array(ev.target.result));
+        const lines = text.split(/\r?\n/).filter(l => l.trim());
+        rows = lines.map(line => line.split(/[,;\t]/).map(p => p.trim().replace(/^"|"$/g, '')));
+      } else {
+        const data = new Uint8Array(ev.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+        rows = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: false, defval: '' });
+      }
+
+      rows = rows.filter(r => r.some(c => String(c).trim() !== ''));
+      if (rows.length === 0) { showToast('Arquivo vazio!', 'error'); return; }
+
+      // Detectar número máximo de colunas
+      const maxCols = Math.max(...rows.map(r => r.length));
+
+      // Detectar cabeçalho
+      const firstRowNorm = rows[0].map(c =>
+        String(c).toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      );
+      const isHeader = firstRowNorm.some(c =>
+        ['nome', 'name', 'apelido', 'username', 'pin', 'senha', 'aluno'].includes(c)
+      );
+      const dataRows = isHeader ? rows.slice(1) : rows;
+
+      // Detectar índices das colunas
+      let nomeCol = 0, apelidoCol = -1, pinCol = -1;
+      if (isHeader) {
+        firstRowNorm.forEach((col, i) => {
+          if (['nome', 'name', 'aluno', 'estudante'].includes(col)) nomeCol = i;
+          if (['apelido', 'username', 'nick', 'usuario', 'user', 'login'].includes(col)) apelidoCol = i;
+          if (['pin', 'senha', 'codigo', 'code'].includes(col)) pinCol = i;
+        });
+      } else if (maxCols >= 3) {
+        apelidoCol = 1; pinCol = 2;
+      } else if (maxCols === 2) {
+        pinCol = 1;
+      }
+      // Se maxCols === 1: só nomes — gera apelido e PIN automáticos
+
+      let imported = 0, skipped = 0;
+      const db = initDB();
+      const gerados = [];
+
+      dataRows.forEach((parts) => {
+        const nome = String(parts[nomeCol] || '').trim();
+        if (!nome) { skipped++; return; }
+
+        // Apelido
+        let apelido = (apelidoCol >= 0 && String(parts[apelidoCol] || '').trim())
+          ? String(parts[apelidoCol]).trim()
+          : nome.split(' ')[0];
+        apelido = apelido.toLowerCase()
+          .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+          .replace(/[^a-z0-9_]/g, '') || 'aluno';
+
+        // Resolve duplicatas
+        let finalApelido = apelido, suffix = 2;
+        while (db.users.find(u => u.username === finalApelido)) {
+          finalApelido = apelido + suffix++;
+        }
+
+        // PIN
+        let pin = (pinCol >= 0) ? String(parts[pinCol] || '').trim().replace(/\D/g, '') : '';
+        if (pin.length > 0 && pin.length < 4) pin = pin.padStart(4, '0');
+        if (pin.length > 4) pin = pin.substring(0, 4);
+
+        // Gera PIN automático se necessário
+        if (!pin || pin.length !== 4) {
+          const usedPins = new Set(db.users.filter(u => u.role !== 'admin').map(u => u.pin));
+          let num = 1001 + db.users.filter(u => u.role !== 'admin').length;
+          while (usedPins.has(String(num).substring(0, 4))) num++;
+          pin = String(num).substring(0, 4);
+        }
+
+        const id = 'u_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+        db.users.push({
+          id, username: finalApelido, pin, role: 'student', name: nome,
+          avatar: AVATARS[Math.floor(Math.random() * AVATARS.length)],
+          talents: 0, weeklyTalents: 0, monthlyTalents: 0, totalTalents: 0,
+          history: [], badges: [], whoamiCorrectStreak: 0, commentCount: 0
+        });
+        if (!db.whoami.queue) db.whoami.queue = [];
+        db.whoami.queue.push(id);
+        gerados.push({ nome, apelido: finalApelido, pin });
+        imported++;
+      });
+
+      saveDB(db);
+      document.getElementById('excelUpload').value = '';
+      closeModal('modalImport');
+
+      if (imported === 0) {
+        showToast('Nenhum aluno importado. Verifique o arquivo.', 'error');
+        return;
+      }
+
+      showToast('✅ ' + imported + ' aluno' + (imported !== 1 ? 's' : '') + ' importado' + (imported !== 1 ? 's' : '') + '!', 'success');
+      renderAdminStudents();
+      showCredentialsModal(gerados);
+
+    } catch (err) {
+      console.error('Erro ao importar:', err);
+      showToast('Erro ao ler arquivo: ' + err.message, 'error');
+    }
+  };
+
+  reader.readAsArrayBuffer(file);
+}
+
+function showCredentialsModal(gerados) {
+  const existing = document.getElementById('modalCredentials');
+  if (existing) existing.remove();
+
+  const rows = gerados.map(function(g) {
+    return '<tr>' +
+      '<td style="padding:7px 10px;font-size:13px;border-bottom:1px solid #f1f5f9">' + g.nome + '</td>' +
+      '<td style="padding:7px 10px;font-size:13px;font-weight:700;color:#1e3a8a;border-bottom:1px solid #f1f5f9">@' + g.apelido + '</td>' +
+      '<td style="padding:7px 10px;font-size:16px;font-weight:900;letter-spacing:4px;color:#b45309;border-bottom:1px solid #f1f5f9">' + g.pin + '</td>' +
+    '</tr>';
+  }).join('');
+
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay active';
+  modal.id = 'modalCredentials';
+  modal.innerHTML = `
+    <div class="modal-sheet" style="max-height:90vh">
+      <div class="modal-handle"></div>
+      <div class="modal-title">🔐 Credenciais dos Alunos</div>
+      <p class="text-muted text-small mb-16">Anote ou copie o login e PIN de cada aluno para compartilhar com eles.</p>
+      <div style="overflow:auto;max-height:55vh;border-radius:10px;border:1px solid #e2e8f0;margin-bottom:16px">
+        <table style="width:100%;border-collapse:collapse">
+          <thead><tr style="background:#1e3a8a;color:#fff">
+            <th style="padding:10px;font-size:12px;text-align:left">Nome</th>
+            <th style="padding:10px;font-size:12px;text-align:left">Apelido</th>
+            <th style="padding:10px;font-size:12px;text-align:left">PIN</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-outline btn-sm" style="flex:1" id="credCloseBtn">Fechar</button>
+        <button class="btn btn-primary btn-sm" style="flex:2" id="credCopyBtn">📋 Copiar tudo</button>
+      </div>
+    </div>`;
+
+  document.body.appendChild(modal);
+
+  // Bind buttons after insertion to avoid inline handler quoting issues
+  document.getElementById('credCloseBtn').onclick = function() { modal.remove(); };
+  document.getElementById('credCopyBtn').onclick = function() {
+    const text = gerados.map(function(g) {
+      return g.nome + ' → @' + g.apelido + ' | PIN: ' + g.pin;
+    }).join('\n');
+    copyCredentials(text);
+  };
+  modal.addEventListener('click', function(ev) { if (ev.target === modal) modal.remove(); });
+}
+
+function copyCredentials(text) {
+  navigator.clipboard.writeText(text).then(function() {
+    showToast('Credenciais copiadas! ✅', 'success');
+  }).catch(function() {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    ta.remove();
+    showToast('Credenciais copiadas! ✅', 'success');
+  });
+}
+
+// ============================================================
+// 🖼️ IMAGE COMPRESSION
+// ============================================================
+function compressImage(file, maxBytes, callback) {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const img = new Image();
+    img.onload = () => {
+      let quality = 0.8;
+      let width = img.width;
+      let height = img.height;
+      const maxDim = 800;
+      if (width > maxDim || height > maxDim) {
+        if (width > height) { height = Math.round(height * maxDim / width); width = maxDim; }
+        else { width = Math.round(width * maxDim / height); height = maxDim; }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width; canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+      let data = canvas.toDataURL('image/jpeg', quality);
+      while (data.length > maxBytes * 1.37 && quality > 0.2) {
+        quality -= 0.1;
+        data = canvas.toDataURL('image/jpeg', quality);
+      }
+      callback(data);
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// ============================================================
+// 🎉 CONFETTI
+// ============================================================
+function confetti() {
+  const colors = ['#1e3a8a','#2563eb','#f59e0b','#fde68a','#22c55e','#ef4444','#7c3aed'];
+  for (let i = 0; i < 60; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = Math.random() * 100 + 'vw';
+    piece.style.background = colors[Math.floor(Math.random()*colors.length)];
+    piece.style.animationDuration = (2 + Math.random() * 2) + 's';
+    piece.style.animationDelay = Math.random() * 0.5 + 's';
+    piece.style.width = piece.style.height = (6 + Math.random() * 8) + 'px';
+    document.body.appendChild(piece);
+    setTimeout(() => piece.remove(), 4000);
+  }
+}
+
+// ============================================================
+// 🔔 TOAST
+// ============================================================
+function showToast(msg, type = '') {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = 'toast' + (type ? ' ' + type : '');
+  toast.textContent = msg;
+  container.appendChild(toast);
+  setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity .3s'; setTimeout(() => toast.remove(), 300); }, 2800);
+}
+
+// ============================================================
+// 🪟 MODAL HELPERS
+// ============================================================
+function openModal(id) { document.getElementById(id).classList.add('active'); }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+// Substituição do confirm() nativo (bloqueado em iframes)
+function showConfirm(title, message, icon, onConfirm, btnLabel = 'Confirmar', danger = true) {
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmMessage').textContent = message;
+  document.getElementById('confirmIcon').textContent = icon;
+  const btn = document.getElementById('confirmBtn');
+  btn.textContent = btnLabel;
+  btn.className = 'btn ' + (danger ? 'btn-danger' : 'btn-primary');
+  btn.onclick = () => { closeModal('modalConfirm'); onConfirm(); };
+  openModal('modalConfirm');
+}
+
+// Close modal on overlay click
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', (e) => { if (e.target === m) m.classList.remove('active'); });
+});
+
+// Enter key on login
+document.getElementById('loginPin').addEventListener('keydown', (e) => { if (e.key === 'Enter') doLogin(); });
+
+// ============================================================
+// 🔄 SCREEN CHANGE HOOKS
+// ============================================================
+const screenObserver = new MutationObserver(() => {
+  const active = document.querySelector('.screen.active');
+  if (!active) return;
+  switch(active.id) {
+    case 'screen-admin-students': renderAdminStudents(); break;
+    case 'screen-admin-voting': renderAdminVoting(); break;
+    case 'screen-admin-challenge': renderAdminChallenge(); break;
+    case 'screen-admin-whoami': renderAdminWhoAmI(); break;
+    case 'screen-admin-secretpair': renderAdminSecretPair(); break;
+    case 'screen-admin-ranking': renderRanking('admin'); break;
+    case 'screen-ranking': renderRanking(); break;
+    case 'screen-profile': renderProfile(); break;
+  }
+});
+
+document.querySelectorAll('.screen').forEach(s => {
+  screenObserver.observe(s, { attributes: true, attributeFilter: ['class'] });
+});
+
+// ============================================================
+// 🚀 INIT
+// ============================================================
+initDB();
+renderAvatarOptions();
+
+// PWA Service Worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(e => console.log('SW:', e));
+}
+
+console.log('📖 EBD Conecta carregado!');
+</script>
+</body>
+</html>
